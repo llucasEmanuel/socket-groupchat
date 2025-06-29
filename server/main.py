@@ -1,4 +1,3 @@
-# server/main.py
 import socket
 from config.settings import SERVER_IP, SERVER_PORT
 from server.receiver import receive_file, send_file
