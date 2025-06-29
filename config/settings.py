@@ -1,0 +1,3 @@
+SERVER_IP = 'localhost'
+SERVER_PORT = 12345
+BUFFER_SIZE = 1024
