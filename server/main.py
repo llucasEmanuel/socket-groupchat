@@ -7,8 +7,8 @@ def main():
     sock.bind((SERVER_IP, SERVER_PORT))
     print(f"Servidor iniciado em {SERVER_IP}:{SERVER_PORT}")
 
-    addr = server_receive_file(sock)
-    # server_send_file(sock, addr)
+    addr, rfname = server_receive_file(sock, "server/arq/mod_")
+    server_send_file(sock, addr, rfname)
 
     sock.close()
 

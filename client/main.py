@@ -7,6 +7,7 @@ def main():
     
     file_path = "client/abacaxi.txt"
     client_send_file(sock, file_path)
+    client_receive_file(sock, "client/arq/")
 
     sock.close()
 

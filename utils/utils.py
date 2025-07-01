@@ -18,7 +18,7 @@ def receive_file(sock, file_prefix):
     
     print(f"Arquivo '{file_name}' recebido e renomeado para '{received_file_name}'.")
     # Retorna (IP, porta) de quem enviou o arquivo
-    return addr
+    return addr, received_file_name
 
 def send_file(sock, addr, file_path):
     file_name = os.path.basename(file_path)
