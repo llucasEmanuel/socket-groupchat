@@ -4,8 +4,9 @@ from config.settings import BUFFER_SIZE
 def receive_file(sock, file_prefix):
     # Recebe primeiro o nome do arquivo
     file_name, addr = sock.recvfrom(BUFFER_SIZE)
-    # Renomeia o arquivo para não sobrescrever o original
+
     file_name = file_name.decode()
+    # Renomeia o arquivo
     received_file_name = file_prefix + file_name
 
     with open(received_file_name, "wb") as f:
@@ -16,6 +17,8 @@ def receive_file(sock, file_prefix):
                 break
             f.write(data)
     
+    # Renomeia para apenas o nome do arquivo
+    received_file_name = os.path.basename(received_file_name)
     print(f"Arquivo '{file_name}' recebido e renomeado para '{received_file_name}'.")
     # Retorna (IP, porta) de quem enviou o arquivo
     return addr, received_file_name

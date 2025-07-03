@@ -1,13 +1,17 @@
 import socket
-from config.settings import SERVER_IP, SERVER_PORT
-from client.sender import client_receive_file, client_send_file
+from client.client import client_receive_file, client_send_file
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
-    file_path = "client/abacaxi.txt"
-    client_send_file(sock, file_path)
-    client_receive_file(sock, "client/arq/")
+    # Mude para o nome do arquivo que quer enviar para o servidor (deve estar na paste client/files/)
+    file_name = "abacaxi.txt"
+
+    # Envia o arquivo para o servidor a partir do socket UDP
+    client_send_file(sock, file_name)
+
+    # Recebe de volta o arquivo do servidor com o nome modificado e armazena em client/files
+    client_receive_file(sock)
 
     sock.close()
 
