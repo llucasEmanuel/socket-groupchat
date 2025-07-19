@@ -20,9 +20,9 @@ class RDT3Receiver:
                 RCV_WRONG_PKT_0: WAIT_PKT_0,
             },
             WAIT_PKT_1: {
-                # Packet 1 received at wait 0 state
+                # Packet 1 received at wait 1 state
                 RCV_RIGHT_PKT_1: WAIT_PKT_0,
-                # Packet 0 or corrupt packet received at wait 0 state
+                # Packet 0 or corrupt packet received at wait 1 state
                 RCV_WRONG_PKT_1: WAIT_PKT_1,
             }
         }
