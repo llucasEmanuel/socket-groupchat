@@ -7,16 +7,16 @@ WAIT_ACK_1 = "WAIT_ACK_1"
 # Transitions available
 APL_CALL = "APL_CALL"
 RCV_WRONG_ACK_0 = "RCV_WRONG_ACK_0"
-RCV_RIGHT_ACK_0 = "RCV_WRONG_ACK_0"
+RCV_RIGHT_ACK_0 = "RCV_RIGHT_ACK_0"
 RCV_WRONG_ACK_1 = "RCV_WRONG_ACK_1"
-RCV_RIGHT_ACK_1 = "RCV_WRONG_ACK_1"
+RCV_RIGHT_ACK_1 = "RCV_RIGHT_ACK_1"
 RCV_ACK_ON_WAIT = "RCV_ACK_ON_WAIT"
 TIMEOUT = "TIMEOUT"
 
 class RDT3Sender:
     def __init__(self):
         self.__state = WAIT_APL_0
-        self.transitions = {
+        self.__transitions = {
             WAIT_APL_0: {
                 RCV_ACK_ON_WAIT: WAIT_APL_0,
                 APL_CALL: WAIT_ACK_0
