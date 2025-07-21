@@ -36,6 +36,8 @@ class RDT3Sender:
                 RCV_RIGHT_ACK_1: WAIT_APL_0
             }
         }
+        self.num = 0
+        # delara timer
 
     def transition(self, event):
         state_transitions = self.__transitions[self.__state]
@@ -50,3 +52,28 @@ class RDT3Sender:
 
     def get_state(self):
         return self.__state
+    
+    def rdt_send(self, sock, addr, data):
+        while True:
+            if self.__state == WAIT_APL_0:
+                sock.sendto(bytes(self.num) + data, addr)
+                # start timer
+                self.transition(WAIT_ACK_0)
+            elif self.__state == WAIT_ACK_0:
+                if False: # timeout()
+                    sock.sendto(bytes(self.num) + data, addr)
+                    # start timer
+                elif True: # rcv ack 0
+                    """ TODO
+                    onde será recebido o ack? 
+                    como será padronizado o ack 0/1?
+                    """
+                    # stop timer
+                    self.transition(WAIT_APL_1)
+                    num = 1
+                    break
+            elif self.__state == WAIT_APL_1:
+                sock.sendto(bytes(self.num) + data, addr)
+                # start timer
+                self.transition(WAIT_ACK_1)
+            elif self.__state == WAIT_ACK_1:
