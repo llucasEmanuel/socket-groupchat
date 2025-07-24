@@ -12,9 +12,6 @@ cd socket-groupchat
 ```
 
 2) **Move the file you want to send to `client/data/` directory (only if you don't want to use the example data)**
-```powershell
-move <your_file_name> client\data
-```
 
 3) **Open your favorite code editor in this directory and open `client/main.py` file**
 ```powershell
@@ -59,9 +56,7 @@ git clone https://github.com/llucasEmanuel/socket-groupchat.git
 cd socket-groupchat
 ```
 2) **Move the file you want to send to `client/data/` directory (only if you don't want to use the example data)**
-```bash 
-mv <your_file_name> client/data
-```
+
 3) **Open your favorite code editor in this directory and open `client/main.py` file**
 ```bash
 vim client/main.py
