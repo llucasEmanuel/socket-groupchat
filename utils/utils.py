@@ -1,9 +1,13 @@
 import os
 from config.settings import BUFFER_SIZE
+from state_machine.rdt3_receiver import RDT3Receiver
 
 def receive_file(sock, file_prefix):
+
+    receiver = RDT3Receiver()
+
     # Recebe primeiro o nome do arquivo
-    file_name, addr = sock.recvfrom(BUFFER_SIZE)
+    file_name, addr = receiver.rdt_receive(sock)
 
     file_name = file_name.decode()
     # Renomeia o arquivo
@@ -12,7 +16,7 @@ def receive_file(sock, file_prefix):
     with open(received_file_name, "wb") as f:
         # Recebe os dados até o EOF
         while True:
-            data, _ = sock.recvfrom(BUFFER_SIZE)
+            data, _ = receiver.rdt_receive(sock)
             if data == b'EOF':
                 break
             f.write(data)
