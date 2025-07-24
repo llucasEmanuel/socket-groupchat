@@ -1,54 +1,55 @@
-# RDT3.0 Sender states
+# Estados do transmissor RDT3.0 
 WAIT_APL_0 = "WAIT_APL_0"
 WAIT_APL_1 = "WAIT_APL_1"
 WAIT_ACK_0 = "WAIT_ACK_0"
 WAIT_ACK_1 = "WAIT_ACK_1"
 
-# Transitions available
-APL_CALL = "APL_CALL"
-RCV_WRONG_ACK_0 = "RCV_WRONG_ACK_0"
-RCV_RIGHT_ACK_0 = "RCV_RIGHT_ACK_0"
-RCV_WRONG_ACK_1 = "RCV_WRONG_ACK_1"
-RCV_RIGHT_ACK_1 = "RCV_RIGHT_ACK_1"
-RCV_ACK_ON_WAIT = "RCV_ACK_ON_WAIT"
-TIMEOUT = "TIMEOUT"
-
 class RDT3Sender:
-    def __init__(self):
-        self.__state = WAIT_APL_0
+    def __init__(self, initial_state=WAIT_APL_0):
+        # Estado inicial
+        self.__state = initial_state
+        # Estados possíveis que caad estado pode transicionar
         self.__transitions = {
             WAIT_APL_0: {
-                RCV_ACK_ON_WAIT: WAIT_APL_0,
-                APL_CALL: WAIT_ACK_0
+                # Recebe ACK no estado de WAIT_APL_0
+                WAIT_APL_0,
+                # Recebe chamada da camada de aplicação para envio de pacote 0
+                WAIT_ACK_0
             },
             WAIT_ACK_0: {
-                RCV_WRONG_ACK_0: WAIT_ACK_0,
-                TIMEOUT: WAIT_ACK_0,
-                RCV_RIGHT_ACK_0: WAIT_APL_1
+                # Recebe ACK 1 ou corrompido
+                WAIT_ACK_0,
+                # Timeout
+                WAIT_ACK_0,
+                # Recebe ACK 0
+                WAIT_APL_1
             },
             WAIT_APL_1: {
-                RCV_ACK_ON_WAIT: WAIT_APL_1,
-                APL_CALL: WAIT_ACK_1
+                # Recebe ACK no estado de WAIT_APL_1
+                WAIT_APL_1,
+                # Recebe chamada da camada de aplicação para envio de pacote 1
+                WAIT_ACK_1
             },
             WAIT_ACK_1: {
-                RCV_WRONG_ACK_1: WAIT_ACK_1,
-                TIMEOUT: WAIT_ACK_1,
-                RCV_RIGHT_ACK_1: WAIT_APL_0
+                # Recebe ACK 0 ou corrompido
+                WAIT_ACK_1,
+                # Timeout
+                WAIT_ACK_1,
+                # Recebe ACK 1
+                WAIT_APL_0
             }
         }
         self.num = 0
         # delara timer
 
-    def transition(self, event):
-        state_transitions = self.__transitions[self.__state]
-        try:
-            new_state = state_transitions[event]
+    def transition(self, new_state):
+        target_states = self.__transitions[self.__state]
 
-            print(f"({self.__state}) -> [{event}] -> ({new_state})")
+        if new_state in target_states:
+            print(f"({self.__state}) ---> ({new_state})")
             self.__state = new_state
-
-        except KeyError:
-            raise KeyError(f"Invalid transition: event '{event}' from state '{self.__state}'")
+        else:
+            raise KeyError(f"Transição inválida do estado '{self.__state}' para o estado '{new_state}'")
 
     def get_state(self):
         return self.__state
