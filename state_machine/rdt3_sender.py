@@ -4,6 +4,9 @@ WAIT_APL_1 = "WAIT_APL_1"
 WAIT_ACK_0 = "WAIT_ACK_0"
 WAIT_ACK_1 = "WAIT_ACK_1"
 
+ONE = (1).to_bytes(1, 'big')
+ZERO = (0).to_bytes(1, 'big')
+
 class RDT3Sender:
     def __init__(self, initial_state=WAIT_APL_0):
         # Estado inicial
@@ -39,8 +42,6 @@ class RDT3Sender:
                 WAIT_APL_0
             }
         }
-        self.num = 0
-        # delara timer
 
     def transition(self, new_state):
         target_states = self.__transitions[self.__state]
@@ -56,25 +57,37 @@ class RDT3Sender:
     
     def rdt_send(self, sock, addr, data):
         while True:
-            if self.__state == WAIT_APL_0:
-                sock.sendto(bytes(self.num) + data, addr)
-                # start timer
+            # Estado de envio do arquivo 0
+            if self.__state == WAIT_APL_0: 
+                # Envia segmento e vai para estado de espera
+                sock.sendto(ZERO + data, addr)
                 self.transition(WAIT_ACK_0)
-            elif self.__state == WAIT_ACK_0:
-                if False: # timeout()
-                    sock.sendto(bytes(self.num) + data, addr)
-                    # start timer
-                elif True: # rcv ack 0
-                    """ TODO
-                    onde será recebido o ack? 
-                    como será padronizado o ack 0/1?
-                    """
-                    # stop timer
-                    self.transition(WAIT_APL_1)
-                    num = 1
-                    break
-            elif self.__state == WAIT_APL_1:
-                sock.sendto(bytes(self.num) + data, addr)
-                # start timer
+            # Estado de espera do ack 0
+            elif self.__state == WAIT_ACK_0: 
+                # Tenta receber ack
+                try: 
+                    ack, _ = sock.recvfrom(1024)
+                    # Se receber ack correto, encerra laço
+                    if ack == ZERO:
+                        self.transition(WAIT_APL_1)
+                        break
+                # Se houver timeout, reenvia pacote
+                except sock.timeout:
+                    sock.sendto(ZERO + data, addr)
+            # Estado de envio do arquivo 1
+            elif self.__state == WAIT_APL_1: 
+                # Envia segmento e vai para estado de espera
+                sock.sendto(ONE + data, addr)
                 self.transition(WAIT_ACK_1)
-            elif self.__state == WAIT_ACK_1:
+            # Estado de espera do ack 1
+            elif self.__state == WAIT_ACK_1: 
+                # Tenta receber ack
+                try:
+                    ack, _ = sock.recvfrom(1024)
+                    # Se receber ack correto, encerra laço
+                    if ack == ONE:
+                        self.transition(WAIT_APL_0)
+                        break
+                # Se houver timeout, reenvia pacote
+                except sock.timeout:
+                    sock.sendto(ONE + data, addr)
