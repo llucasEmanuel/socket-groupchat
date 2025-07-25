@@ -1,1 +1,1 @@
-PYTHONDONTWRITEBYTECODE=1 python -m client.main
+PYTHONDONTWRITEBYTECODE=1 python3 -m client.main

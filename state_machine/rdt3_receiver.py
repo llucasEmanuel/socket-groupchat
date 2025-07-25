@@ -1,44 +1,69 @@
-# RDT3.0 Receiver states
+from config.settings import BUFFER_SIZE
+from utils.rdt_utils import send_with_loss_sim
+
+# Estados do receptor RDT3.0
 WAIT_PKT_0 = "WAIT_PKT_0"
 WAIT_PKT_1 = "WAIT_PKT_1"
 
-# Transitions available
-RCV_RIGHT_PKT_0 = "RCV_RIGHT_PKT_0"
-RCV_RIGHT_PKT_1 = "RCV_RIGHT_PKT_1"
-RCV_WRONG_PKT_0 = "RCV_WRONG_PKT_0"
-RCV_WRONG_PKT_1 = "RCV_WRONG_PKT_1"
-
 class RDT3Receiver:
-    def __init__(self):
-        # initial_state
-        self.__state = WAIT_PKT_0
+    def __init__(self, initial_state=WAIT_PKT_0):
+        # Estado inicial
+        self.__state = initial_state
+        # Estados possíveis que caad estado pode transicionar
         self.__transitions = {
-            WAIT_PKT_0: {
-                # Packet 0 received at the wait 0 state
-                RCV_RIGHT_PKT_0: WAIT_PKT_1,
-                # Packet 1 or corrupt packet received at the wait 0 state
-                RCV_WRONG_PKT_0: WAIT_PKT_0,
-            },
-            WAIT_PKT_1: {
-                # Packet 1 received at the wait 1 state
-                RCV_RIGHT_PKT_1: WAIT_PKT_0,
-                # Packet 0 or corrupt packet received at the wait 1 state
-                RCV_WRONG_PKT_1: WAIT_PKT_1,
-            }
+            WAIT_PKT_0: [
+                # Pacote 0 recebido no estado WAIT_PKT_0
+                WAIT_PKT_1,
+                # Pacote 1 ou corrompido recebido no estado WAIT_PKT_0
+                WAIT_PKT_0,
+            ],
+            WAIT_PKT_1: [
+                # Pacote 1 recebido no estado WAIT_PKT_1
+                WAIT_PKT_0,
+                # Pacote 0 ou corrompido recebido no estado WAIT_PKT_1
+                WAIT_PKT_1,
+            ]
         }
 
-    def transition(self, event):
-        state_transitions = self.__transitions[self.__state]
-        try:
-            new_state = state_transitions[event]
+    def transition(self, new_state):
+        target_states = self.__transitions[self.__state]
 
-            print(f"({self.__state}) -> [{event}] -> ({new_state})")
+        if new_state in target_states:
+            print(f"({self.__state}) ---> ({new_state})")
             self.__state = new_state
-
-        except KeyError:
-            raise KeyError(f"Invalid transition: event '{event}' from state '{self.__state}'")
+        else:
+            raise KeyError(f"Invalid transition from state '{self.__state}' to state '{new_state}'")
 
     def get_state(self):
         return self.__state
-        
-    
+
+    def rdt_receive(self, sock):
+        while True:
+            try:
+                data, addr = sock.recvfrom(BUFFER_SIZE)
+                if self.__state == WAIT_PKT_0:
+                    seqnum = data[0]
+                    payload = data[1:]
+
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+
+                    # Recebeu o número de sequência esperado
+                    if seqnum == 0:
+                        self.transition(WAIT_PKT_1)
+                        return payload, addr
+
+                elif self.__state == WAIT_PKT_1:
+                    seqnum = data[0]
+                    payload = data[1:]
+
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+
+                    # Recebeu o número de sequência esperado
+                    if seqnum == 1:
+                        self.transition(WAIT_PKT_0)
+                        return payload, addr
+            except TimeoutError:
+                # Se ocorrer timeout, o receptor não deve fazer nada
+                ...
