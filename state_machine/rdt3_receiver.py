@@ -38,33 +38,30 @@ class RDT3Receiver:
 
     def rdt_receive(self, sock):
         while True:
-            data, addr = sock.recvfrom(BUFFER_SIZE)
-            print(addr)
-            if self.__state == WAIT_PKT_0:
-                seqnum = data[0]
-                payload = data[1:]
+            try:
+                data, addr = sock.recvfrom(BUFFER_SIZE)
+                print(addr)
+                if self.__state == WAIT_PKT_0:
+                    seqnum = data[0]
+                    payload = data[1:]
 
-                # Envia ack para o transmissor
-                sock.sendto(seqnum.to_bytes(1, 'big'), addr)
+                    # Envia ack para o transmissor
+                    sock.sendto(seqnum.to_bytes(1, 'big'), addr)
 
-                if seqnum == 0:
-                    self.transition(WAIT_PKT_1)
-                    return payload, addr
-
-
-            elif self.__state == WAIT_PKT_1:
-                seqnum = data[0]
-                payload = data[1:]
-
-                # Envia ack para o transmissor
-                sock.sendto(seqnum.to_bytes(1, 'big'), addr)
-
-                if seqnum == 1:
-                    self.transition(WAIT_PKT_0)
-                    return payload, addr
-                    
+                    if seqnum == 0:
+                        self.transition(WAIT_PKT_1)
+                        return payload, addr
 
 
+                elif self.__state == WAIT_PKT_1:
+                    seqnum = data[0]
+                    payload = data[1:]
 
-        
-    
+                    # Envia ack para o transmissor
+                    sock.sendto(seqnum.to_bytes(1, 'big'), addr)
+
+                    if seqnum == 1:
+                        self.transition(WAIT_PKT_0)
+                        return payload, addr
+            except TimeoutError:
+                ...
