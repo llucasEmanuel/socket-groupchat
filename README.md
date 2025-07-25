@@ -1,6 +1,14 @@
 # socket-groupchat
 Group chat application built using Python's socket library, developed for the IF678 - Infraestrutura de Comunicação project.
 
+### Group members
+- Cleber Lucas Farias - `clfm`
+- Maurício Andrey - `mfss2`
+- Lucas Emanuel Sabino - `lessl`
+- Rian Antony - `rama`
+- Gabriel Alves - `gagm`
+- Juliana Luiza de Andrade - `jlas2`
+
 ---
 
 ## Running the project on Windows
@@ -12,9 +20,6 @@ cd socket-groupchat
 ```
 
 2) **Move the file you want to send to `client/data/` directory (only if you don't want to use the example data)**
-```powershell
-move <your_file_name> client\data
-```
 
 3) **Open your favorite code editor in this directory and open `client/main.py` file**
 ```powershell
@@ -59,9 +64,7 @@ git clone https://github.com/llucasEmanuel/socket-groupchat.git
 cd socket-groupchat
 ```
 2) **Move the file you want to send to `client/data/` directory (only if you don't want to use the example data)**
-```bash 
-mv <your_file_name> client/data
-```
+
 3) **Open your favorite code editor in this directory and open `client/main.py` file**
 ```bash
 vim client/main.py
