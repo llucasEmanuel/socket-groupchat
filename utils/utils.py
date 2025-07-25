@@ -1,5 +1,4 @@
 import os
-import sys
 from config.settings import BUFFER_SIZE, HEADER_SIZE
 from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
@@ -17,11 +16,12 @@ def receive_file(sock, file_prefix):
     file_name = file_name.decode()
     # Renomeia o arquivo
     received_file_name = file_prefix + file_name
-    print("Nome do arquivo sendo recebido: " + received_file_name)
 
     # Recebe tamanho do arquivo
     size, _ = receiver.rdt_receive(sock)
     size = int.from_bytes(size, 'big')
+
+    print("Nome do arquivo sendo recebido: " + received_file_name)
     print(f"Tamanho do arquivo sendo recebido: {size}")
 
     with open(received_file_name, "wb") as f:
@@ -46,17 +46,19 @@ def send_file(sock, addr, file_path):
     with open(file_path, "rb") as f:
 
         # Inicializa sender rdt3.0
-        file_name = os.path.basename(file_path)
         sender = RDT3Sender()
         sock.settimeout(1)
 
         # Envia primeiro o nome do arquivo
+        file_name = os.path.basename(file_path)
         sender.rdt_send(sock, addr, file_name.encode())
 
         # Envia tamanho do arquivo
         size = os.path.getsize(file_path)
-        print(f"tamanho do arquivo enviado: {size}")
         sender.rdt_send(sock, addr, size.to_bytes(4, 'big'))
+
+        print("Nome do arquivo sendo enviado: " + file_path)
+        print(f"Tamanho do arquivo sendo enviado: {size}")
 
         # Envia os dados do arquivo
         i = 0
