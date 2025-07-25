@@ -1,6 +1,6 @@
 import os
-from config.settings import BUFFER_SIZE
-from state_machine.rdt3_receiver import RDT3Receiver, HEADER_SIZE
+from config.settings import BUFFER_SIZE, HEADER_SIZE
+from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
