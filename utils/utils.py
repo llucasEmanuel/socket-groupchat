@@ -32,7 +32,7 @@ def receive_file(sock, file_prefix):
             if data == b'EOF':
                 break
             f.write(data)
-            print(f"{100*(DATA_SIZE*i + sys.getsizeof(data)) / size : .0f}% recebido")
+            print(f"{100*(DATA_SIZE*i + len(data)) / size : .0f}% recebido")
             i = i+1
     
     # Renomeia para apenas o nome do arquivo
@@ -65,7 +65,7 @@ def send_file(sock, addr, file_path):
             if not data:
                 break
             sender.rdt_send(sock, addr, data)
-            print(f"{100*(DATA_SIZE*i + sys.getsizeof(data)) / size : .0f}% enviado")
+            print(f"{100*(DATA_SIZE*i + len(data)) / size : .0f}% enviado")
             i = i+1
 
     # Envia o marcador do fim do arquivo
