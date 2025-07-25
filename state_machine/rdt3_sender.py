@@ -1,5 +1,5 @@
 from config.settings import BUFFER_SIZE
-from utils.rdtutils import ONE_1, ZERO_1, ONE_B, ZERO_B, loss_sym
+from utils.rdt_utils import ONE_1, ZERO_1, ONE_B, ZERO_B, send_with_loss_sim
 
 # Estados do transmissor RDT3.0 
 WAIT_APL_0 = "WAIT_APL_0"
@@ -60,7 +60,7 @@ class RDT3Sender:
             # Estado de envio do arquivo 0
             if self.__state == WAIT_APL_0: 
                 # Envia segmento e vai para estado de espera
-                loss_sym(sock, ZERO_1 + data, addr)
+                send_with_loss_sim(sock, ZERO_1 + data, addr)
                 self.transition(WAIT_ACK_0)
             # Estado de espera do ack 0
             elif self.__state == WAIT_ACK_0: 
@@ -72,17 +72,18 @@ class RDT3Sender:
                         self.transition(WAIT_APL_1)
                         break
                     elif ack == ONE_B:
-                        ...
+                        # Se mantém no mesmo estado
+                        self.transition(WAIT_ACK_0)
                     else:
                         break
                 # Se houver timeout, reenvia pacote
                 except TimeoutError:
-                    loss_sym(sock, ZERO_1 + data, addr)
+                    send_with_loss_sim(sock, ZERO_1 + data, addr)
                     print("Ocorreu timeout, pacote reenviado")
             # Estado de envio do arquivo 1
             elif self.__state == WAIT_APL_1: 
                 # Envia segmento e vai para estado de espera
-                loss_sym(sock, ONE_1 + data, addr)
+                send_with_loss_sim(sock, ONE_1 + data, addr)
                 self.transition(WAIT_ACK_1)
             # Estado de espera do ack 1
             elif self.__state == WAIT_ACK_1: 
@@ -94,10 +95,11 @@ class RDT3Sender:
                         self.transition(WAIT_APL_0)
                         break
                     elif ack == ZERO_B:
-                        ...
+                        # Se mantém no mesmo estado
+                        self.transition(WAIT_ACK_1)
                     else:
                         break
                 # Se houver timeout, reenvia pacote
                 except TimeoutError:
-                    loss_sym(sock, ONE_1 + data, addr)
+                    send_with_loss_sim(sock, ONE_1 + data, addr)
                     print("Ocorreu timeout, pacote reenviado")

@@ -1,6 +1,14 @@
 # socket-groupchat
 Group chat application built using Python's socket library, developed for the IF678 - Infraestrutura de Comunicação project.
 
+### Group members
+- Cleber Lucas Farias - `clfm`
+- Maurício Andrey - `mfss2`
+- Lucas Emanuel Sabino - `lessl`
+- Rian Antony - `rama`
+- Gabriel Alves - `gagm`
+- Juliana Luiza de Andrade - `jlas2`
+
 ---
 
 ## Running the project on Windows

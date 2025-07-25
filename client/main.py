@@ -5,7 +5,7 @@ def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     
     # Mude para o nome do arquivo que quer enviar para o servidor (deve estar na pasta client/data/)
-    file_name = "abacaxi.txt"
+    file_name = "ah_eh.jpg"
 
     # Envia o arquivo para o servidor a partir do socket UDP
     client_send_file(sock, file_name)

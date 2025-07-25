@@ -11,6 +11,8 @@ def receive_file(sock, file_prefix):
     receiver = RDT3Receiver()
     sock.settimeout(1)
 
+    print("\nInício do receptor")
+
     # Recebe primeiro o nome do arquivo
     file_name, addr = receiver.rdt_receive(sock)
     file_name = file_name.decode()
@@ -49,6 +51,7 @@ def send_file(sock, addr, file_path):
         sender = RDT3Sender()
         sock.settimeout(1)
 
+        print("\nInício do transmissor")
         # Envia primeiro o nome do arquivo
         file_name = os.path.basename(file_path)
         sender.rdt_send(sock, addr, file_name.encode())

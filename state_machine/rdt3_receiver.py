@@ -1,5 +1,5 @@
 from config.settings import BUFFER_SIZE
-from utils.rdtutils import loss_sym
+from utils.rdt_utils import send_with_loss_sim
 
 # Estados do receptor RDT3.0
 WAIT_PKT_0 = "WAIT_PKT_0"
@@ -45,9 +45,10 @@ class RDT3Receiver:
                     seqnum = data[0]
                     payload = data[1:]
 
-                    # Envia ack para o transmissor
-                    loss_sym(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
+                    # Recebeu o número de sequência esperado
                     if seqnum == 0:
                         self.transition(WAIT_PKT_1)
                         return payload, addr
@@ -56,11 +57,13 @@ class RDT3Receiver:
                     seqnum = data[0]
                     payload = data[1:]
 
-                    # Envia ack para o transmissor
-                    loss_sym(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
+                    # Recebeu o número de sequência esperado
                     if seqnum == 1:
                         self.transition(WAIT_PKT_0)
                         return payload, addr
             except TimeoutError:
+                # Se ocorrer timeout, o receptor não deve fazer nada
                 ...
