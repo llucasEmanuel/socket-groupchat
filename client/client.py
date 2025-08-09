@@ -2,6 +2,10 @@ import os
 from config.settings import SERVER_IP, SERVER_PORT
 from utils.utils import receive_file, send_file
 
+class Client:
+    def __init__(self):
+        self,friend_list = []
+
 def client_receive_file(sock, file_prefix="recv_"):
     file_prefix = os.path.join("client", "data", file_prefix)
     sender_addr = receive_file(sock, file_prefix)
