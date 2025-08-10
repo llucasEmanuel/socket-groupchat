@@ -3,6 +3,20 @@ from config.settings import BUFFER_SIZE, HEADER_SIZE
 from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
 
+from enum import Enum
+
+class comandos(Enum):
+    OLA = 0
+    TCHAU = 1
+    LIST = 2
+    FRIENDS = 3
+    ADD = 4
+    RMV = 5
+    BAN = 6
+    HELP = 7
+    KILL = 8
+    MSG = 9 
+
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
 def receive_file(sock, file_prefix):
@@ -117,3 +131,4 @@ def receive_message(sock):
     
     # print("Mensagem recebida com sucesso")
     return message, addr
+

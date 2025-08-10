@@ -29,7 +29,7 @@ class RDT3Receiver:
         target_states = self.__transitions[self.__state]
 
         if new_state in target_states:
-            print(f"({self.__state}) ---> ({new_state})")
+            # print(f"({self.__state}) ---> ({new_state})")
             self.__state = new_state
         else:
             raise KeyError(f"Invalid transition from state '{self.__state}' to state '{new_state}'")
@@ -39,39 +39,39 @@ class RDT3Receiver:
 
     def rdt_receive(self, sock):
         while True:
-            try: 
-                data, addr = sock.recvfrom(BUFFER_SIZE)
+            #try: 
+            data, addr = sock.recvfrom(BUFFER_SIZE)
 
-                """
-                if(data == HANDSHAKE) {
-                    send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
-                    continue
-                }
-                """
+            """
+            if(data == HANDSHAKE) {
+                send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
+                continue
+            }
+            """
 
-                if self.__state == WAIT_PKT_0:
-                    seqnum = data[0]
-                    payload = data[1:]
+            if self.__state == WAIT_PKT_0:
+                seqnum = data[0]
+                payload = data[1:]
 
-                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
-                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
-                    # Recebeu o número de sequência esperado
-                    if seqnum == 0:
-                        self.transition(WAIT_PKT_1)
-                        return payload, addr
+                # Recebeu o número de sequência esperado
+                if seqnum == 0:
+                    self.transition(WAIT_PKT_1)
+                    return payload, addr
 
-                elif self.__state == WAIT_PKT_1:
-                    seqnum = data[0]
-                    payload = data[1:]
+            elif self.__state == WAIT_PKT_1:
+                seqnum = data[0]
+                payload = data[1:]
 
-                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
-                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
-                    # Recebeu o número de sequência esperado
-                    if seqnum == 1:
-                        self.transition(WAIT_PKT_0)
-                        return payload, addr
-            except TimeoutError:
+                # Recebeu o número de sequência esperado
+                if seqnum == 1:
+                    self.transition(WAIT_PKT_0)
+                    return payload, addr
+            #except TimeoutError:
                 # Se ocorrer timeout, o receptor não deve fazer nada
-                ...
+                #...
