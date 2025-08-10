@@ -1,8 +1,8 @@
 import socket
 from config.settings import SERVER_IP, SERVER_PORT
-from server.server import server_receive_file, server_send_file
+from server.server import server_receive_file, server_send_file, server_receive_message, server_send_message
 
-from utils.utils import receive_message, send_message, comandos
+from utils.utils import comandos
 
 def main():
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -11,7 +11,7 @@ def main():
 
     while True:
         try:
-            message, addr = receive_message(sock)
+            message, addr = server_receive_message(sock)
             split = message.split('-', 1) 
             command = split[0]
             argument = "" if (len(split) <= 1) else split[1] 
@@ -61,7 +61,7 @@ def main():
                 message = "-=-=-=-=-\n" + message + "\n-=-=-=-=-"
             
             print("enviando: " + message)
-            send_message(sock, addr, message)
+            server_send_message(sock, addr, message)
         except TimeoutError:
             ...
 

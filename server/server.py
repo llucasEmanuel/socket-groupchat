@@ -1,5 +1,5 @@
 import os
-from utils.utils import receive_file, send_file
+from utils.utils import receive_file, send_file, send_message, receive_message
 
 def server_receive_file(sock, file_prefix="recv_"):
     file_prefix = os.path.join("server", "data", file_prefix)
@@ -9,4 +9,10 @@ def server_receive_file(sock, file_prefix="recv_"):
 def server_send_file(sock, addr, file_name):
     file_path = os.path.join("server", "data", file_name)
     send_file(sock, addr, file_path)
+
+def server_receive_message(sock):
+    receive_message(sock)
+
+def server_send_message(sock, addr, message):
+    send_message(sock, addr, message)
 

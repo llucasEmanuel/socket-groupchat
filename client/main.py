@@ -1,8 +1,8 @@
 import socket
-from client.client import client_receive_file, client_send_file
+from client.client import client_receive_file, client_send_file, client_receive_message, client_send_message
 
 from config.settings import SERVER_IP, SERVER_PORT
-from utils.utils import receive_message, send_message, comandos
+from utils.utils import comandos
 
 """
 // Organização dos comandos
@@ -45,7 +45,7 @@ def main():
     while True:
         
         try:
-            message, _ = receive_message(sock)
+            message, _ = client_receive_message(sock)
             print(message)
             if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
                 break
@@ -63,35 +63,45 @@ def main():
         # cada comando deve ter uma função que será criada por outro colaborador
         if  (command == "/ola"):
             # print("comando: " + command + ", argumento: " + argument)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.OLA.__str__() + "-" + argument)
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.OLA.__str__() + "-" + argument)
         elif(command == "/tchau"):
             print("comando: " + command)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.TCHAU.__str__() + "-" + argument)
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.TCHAU.__str__() + "-" + argument)
         elif(command == "/list"):
             print("comando: " + command)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.LIST.__str__() + "-")
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.LIST.__str__() + "-")
         elif(command == "/friends"):
             print("comando: " + command)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.FRIENDS.__str__() + "-")
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.FRIENDS.__str__() + "-")
         elif(command == "/add"):
             # print("comando: " + command + ", argumento: " + argument)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.ADD.__str__() + "-" + argument)
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.ADD.__str__() + "-" + argument)
         elif(command == "/rmv"):
             # print("comando: " + command + ", argumento: " + argument)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.RMV.__str__() + "-" + argument)
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.RMV.__str__() + "-" + argument)
         elif(command == "/ban"):
             # print("comando: " + command + ", argumento: " + argument)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.BAN.__str__() + "-" + argument)
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.BAN.__str__() + "-" + argument)
         elif(command == "/help"):
             # print("comando: " + command)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.HELP.__str__() + "-")
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.HELP.__str__() + "-")
         elif(command == "/kill"):
             print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
             break # encerra o aplicativo
-            # send_message(sock, (SERVER_IP, SERVER_PORT), comandos.KILL.__str__() + "-")
+            # client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+            #                     comandos.KILL.__str__() + "-")
         else:
             print("enviando: " + _input)
-            send_message(sock, (SERVER_IP, SERVER_PORT), comandos.MSG.__str__() + "-" + _input) 
+            client_send_message(sock, (SERVER_IP, SERVER_PORT), 
+                                comandos.MSG.__str__() + "-" + _input) 
 
     sock.close()
 
