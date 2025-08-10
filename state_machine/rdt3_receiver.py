@@ -39,8 +39,16 @@ class RDT3Receiver:
 
     def rdt_receive(self, sock):
         while True:
-            try:
+            try: 
                 data, addr = sock.recvfrom(BUFFER_SIZE)
+
+                """
+                if(data == HANDSHAKE) {
+                    send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
+                    continue
+                }
+                """
+
                 if self.__state == WAIT_PKT_0:
                     seqnum = data[0]
                     payload = data[1:]
