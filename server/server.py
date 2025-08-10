@@ -1,5 +1,5 @@
 import os
-from utils.utils import receive_file, send_file
+from utils.utils import receive_file, send_file, send_message
 
 class ClientRegister:
     def __init__(self, username, addr):
@@ -36,6 +36,20 @@ class Server:
         self.client_list.append(client)
         
         # TODO: notificar clientes que o novo cliente foi adicionado no chat
+
+    # Envia a lista de clientes para o cliente de endereço addr que usou /list
+    def send_client_list(self, sock, addr):
+        client_names = [client.username for client in self.client_list]
+        num_clients = len(client_names)
+
+        # Primeiro envia o numero de clientes (cliente vai contar cada pacote recebido até chegar nesse número)
+        # TODO: Enviar num_clients para o cliente de endereço addr
+        send_message(sock, addr, str(num_clients))
+
+        # Envia o nome dos usuários um por um
+        for username in client_names:
+            # TODO: Enviar username para o cliente de endereço addr usando o socket
+            send_message(sock, addr, username)
 
 def server_receive_file(sock, file_prefix="recv_"):
     file_prefix = os.path.join("server", "data", file_prefix)
