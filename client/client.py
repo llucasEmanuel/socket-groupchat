@@ -18,9 +18,12 @@ def client_receive_message(sock):
     message, _ = receive_message(sock)
     return message
 
-def client_send_message(sock, message):
+def client_send_message(sock, portrcv : str, message : str):
     # Sempre envia para o servidor
-    send_message(sock, (SERVER_IP, SERVER_PORT), message)
+    send_message(sock, (SERVER_IP, SERVER_PORT), portrcv + message)
+
+def recv_start(sock):
+    client_send_message(sock, ((2025).to_bytes(4, 'big')).decode('latin1'), comandos.IGN.__str__() + "-ignore")
 
 def client_input():
     _input = input("> ")
@@ -34,11 +37,11 @@ def client_input():
 def thread_receive(sock):
     while not kill():
         message = client_receive_message(sock)
-        print(message)
+        print("\n"+message+"\n> ",end="")
         if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
             break
 
-def thread_userinput(sock):
+def thread_userinput(sock, portrcv : str):
     while not kill():
 
         _input, command, argument = client_input()
@@ -49,42 +52,46 @@ def thread_userinput(sock):
         # cada comando deve ter uma função que será criada por outro colaborador
         if  (command == "/ola"):
             # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock,
+            client_send_message(sock, portrcv,
                                 comandos.OLA.__str__() + "-" + argument)
         elif(command == "/tchau"):
             print("comando: " + command)
-            client_send_message(sock,
+            client_send_message(sock, portrcv,
                                 comandos.TCHAU.__str__() + "-" + argument)
         elif(command == "/list"):
             print("comando: " + command)
-            client_send_message(sock,
+            client_send_message(sock, portrcv,
                                 comandos.LIST.__str__() + "-")
         elif(command == "/friends"):
             print("comando: " + command)
-            client_send_message(sock,
+            client_send_message(sock, portrcv,
                                 comandos.FRIENDS.__str__() + "-")
         elif(command == "/add"):
             # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock,
+            client_send_message(sock, portrcv,
                                 comandos.ADD.__str__() + "-" + argument)
         elif(command == "/rmv"):
             # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, 
+            client_send_message(sock, portrcv, 
                                 comandos.RMV.__str__() + "-" + argument)
         elif(command == "/ban"):
             # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, 
+            client_send_message(sock, portrcv, 
                                 comandos.BAN.__str__() + "-" + argument)
         elif(command == "/help"):
             # print("comando: " + command)
-            client_send_message(sock, 
+            client_send_message(sock, portrcv, 
                                 comandos.HELP.__str__() + "-")
         elif(command == "/kill"):
             print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
             set_kill(True) # encerra o aplicativo
             # client_send_message(sock, 
             #                     comandos.KILL.__str__() + "-")
+        elif(command == "/ignore"):
+            # print("comando: " + command)
+            client_send_message(sock, portrcv, 
+                                comandos.IGN.__str__() + "-")
         else:
             print("enviando: " + _input)
-            client_send_message(sock, 
+            client_send_message(sock, portrcv, 
                                 comandos.MSG.__str__() + "-" + _input) 

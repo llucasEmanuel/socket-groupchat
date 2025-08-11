@@ -50,6 +50,9 @@ def main():
         elif (command == (comandos.MSG.__str__())):
             message = argument
             # envia mensagem para todos os usuários na sala
+        elif (command == (comandos.IGN.__str__())):
+            print("ignored")
+            continue
         else:
             message = argument
         
@@ -59,8 +62,8 @@ def main():
         else:
             message = "-=-=-=-=-\n" + message + "\n-=-=-=-=-"
         
-        print("enviando: " + message + "aaa")
-        server_send_message(sock, addr, message + "aaa")
+        print("enviando: " + message)
+        server_send_message(sock, addr, message)
 
     sock.close()
 

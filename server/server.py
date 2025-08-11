@@ -11,8 +11,9 @@ def server_send_file(sock, addr, file_name):
     send_file(sock, addr, file_path)
 
 def server_receive_message(sock):
-    message, addr = receive_message(sock)
-    return message, addr
+    message, (ip, _) = receive_message(sock)
+    # print(int.from_bytes((message[:4]).encode('latin1'), 'big'))
+    return message[4:], (ip, int.from_bytes((message[:4]).encode('latin1'), 'big')) 
 
 def server_send_message(sock, addr, message):
     # Sempre envia para o servidor

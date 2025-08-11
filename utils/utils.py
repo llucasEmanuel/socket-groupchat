@@ -15,7 +15,7 @@ class comandos(Enum):
     HELP = 7
     KILL = 8
     MSG = 9 
-
+    IGN = 10
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
@@ -23,7 +23,7 @@ def receive_file(sock, file_prefix):
 
     # Inicializa receiver rdt3.0
     receiver = RDT3Receiver()
-    sock.settimeout(1)
+    sock.settimeout(0.2)
 
     print("\nInício do receptor")
 
@@ -63,7 +63,7 @@ def send_file(sock, addr, file_path):
 
         # Inicializa sender rdt3.0
         sender = RDT3Sender()
-        sock.settimeout(1)
+        sock.settimeout(0.2)
 
         print("\nInício do transmissor")
         # Envia primeiro o nome do arquivo
