@@ -40,16 +40,13 @@ class Server:
     # Envia a lista de clientes para o cliente de endereço addr que usou /list
     def send_client_list(self, sock, addr):
         client_names = [client.username for client in self.client_list]
-        num_clients = len(client_names)
 
-        # Primeiro envia o numero de clientes (cliente vai contar cada pacote recebido até chegar nesse número)
-        # TODO: Enviar num_clients para o cliente de endereço addr
-        send_message(sock, addr, str(num_clients))
+        # Concatena os nomes dos clientes em uma string (usa \0 para separar cada username)
+        all_names_string = "\0".join(client_names)
 
-        # Envia o nome dos usuários um por um
-        for username in client_names:
-            # TODO: Enviar username para o cliente de endereço addr usando o socket
-            send_message(sock, addr, username)
+        # Envia apenas a string para o cliente
+        send_message(sock, addr, all_names_string)
+
 
 def server_receive_file(sock, file_prefix="recv_"):
     file_prefix = os.path.join("server", "data", file_prefix)
