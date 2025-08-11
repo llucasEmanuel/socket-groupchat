@@ -19,7 +19,7 @@ class Server:
         for banned_client in self.ban_list:
             if(username == banned_client.username):
 
-                output_message = f"\033[31m[Server] ☠️ Acesso negado ☠️: {username} foi banido do chat!! \033[0m"
+                output_message = f"\033[31m[Server] ☠️ Acesso negado ☠️: '{username}' foi banido do chat!! \033[0m"
                 send_message(sock, addr, output_message)
                 print(output_message)
                 return
