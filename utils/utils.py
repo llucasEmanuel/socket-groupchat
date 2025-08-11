@@ -3,20 +3,6 @@ from config.settings import BUFFER_SIZE, HEADER_SIZE
 from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
 
-from enum import Enum
-
-class comandos(Enum):
-    OLA = 0
-    TCHAU = 1
-    LIST = 2
-    FRIENDS = 3
-    ADD = 4
-    RMV = 5
-    BAN = 6
-    HELP = 7
-    KILL = 8
-    MSG = 9 
-
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
 def receive_file(sock, file_prefix):
@@ -96,16 +82,17 @@ def send_message(sock, addr, message):
     sender = RDT3Sender()
     sock.settimeout(1)
     # print("\nEnviando mensagem...")
-    """
-    sender.rdt_send(sock, addr, HANDSHAKE)
-    while(recebe_resposta() == NEGA_HANDSHAKE):
-        espera um segundo
-        manda dnovo
-    """
+
+    #sender.rdt_send(sock, addr, HANDSHAKE)
+    #while(recebe_resposta() == NEGA_HANDSHAKE):
+    #    espera um segundo
+    #    manda dnovo
+
     # Envia os dados do arquivo
     while True:
         data = message[:DATA_SIZE]
         message = message[DATA_SIZE:]
+        # print("sending: '" + data + "'")
         if not data:
             break
         sender.rdt_send(sock, addr, data.encode())
@@ -131,4 +118,3 @@ def receive_message(sock):
     
     # print("Mensagem recebida com sucesso")
     return message, addr
-

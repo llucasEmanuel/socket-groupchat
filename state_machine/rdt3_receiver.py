@@ -1,5 +1,6 @@
 from config.settings import BUFFER_SIZE
 from utils.rdt_utils import send_with_loss_sim
+from utils.rdt_utils import kill
 
 # Estados do receptor RDT3.0
 WAIT_PKT_0 = "WAIT_PKT_0"
@@ -39,39 +40,38 @@ class RDT3Receiver:
 
     def rdt_receive(self, sock):
         while True:
-            #try: 
-            data, addr = sock.recvfrom(BUFFER_SIZE)
+            try:
+                data, addr = sock.recvfrom(BUFFER_SIZE)
 
-            """
-            if(data == HANDSHAKE) {
-                send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
-                continue
-            }
-            """
+                #if data == HANDSHAKE:
+                #    teria q ser rdt_send???
+                #    send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
+                #    continue
+                #
 
-            if self.__state == WAIT_PKT_0:
-                seqnum = data[0]
-                payload = data[1:]
+                if self.__state == WAIT_PKT_0:
+                    seqnum = data[0]
+                    payload = data[1:]
 
-                # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
-                send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
-                # Recebeu o número de sequência esperado
-                if seqnum == 0:
-                    self.transition(WAIT_PKT_1)
-                    return payload, addr
+                    # Recebeu o número de sequência esperado
+                    if seqnum == 0:
+                        self.transition(WAIT_PKT_1)
+                        return payload, addr
 
-            elif self.__state == WAIT_PKT_1:
-                seqnum = data[0]
-                payload = data[1:]
+                elif self.__state == WAIT_PKT_1:
+                    seqnum = data[0]
+                    payload = data[1:]
 
-                # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
-                send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
+                    # Envia ack para o transmissor (número de sequência sempre é igual ao ack)
+                    send_with_loss_sim(sock, seqnum.to_bytes(BUFFER_SIZE, 'big'), addr)
 
-                # Recebeu o número de sequência esperado
-                if seqnum == 1:
-                    self.transition(WAIT_PKT_0)
-                    return payload, addr
-            #except TimeoutError:
-                # Se ocorrer timeout, o receptor não deve fazer nada
-                #...
+                    # Recebeu o número de sequência esperado
+                    if seqnum == 1:
+                        self.transition(WAIT_PKT_0)
+                        return payload, addr
+            except TimeoutError:
+                if kill():
+                    return b'EOF', (0,0)
