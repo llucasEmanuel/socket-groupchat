@@ -53,45 +53,45 @@ def thread_userinput(sock, portrcv : str):
         if  (command == "/ola"):
             # print("comando: " + command + ", argumento: " + argument)
             client_send_message(sock, portrcv,
-                                comandos.OLA.__str__() + "-" + argument)
+                                str(comandos.OLA) + "-" + argument)
         elif(command == "/tchau"):
             print("comando: " + command)
             client_send_message(sock, portrcv,
-                                comandos.TCHAU.__str__() + "-" + argument)
+                                str(comandos.TCHAU) + "-" + argument)
         elif(command == "/list"):
             print("comando: " + command)
             client_send_message(sock, portrcv,
-                                comandos.LIST.__str__() + "-")
+                                str(comandos.LIST) + "-")
         elif(command == "/friends"):
             print("comando: " + command)
             client_send_message(sock, portrcv,
-                                comandos.FRIENDS.__str__() + "-")
+                                str(comandos.FRIENDS) + "-")
         elif(command == "/add"):
             # print("comando: " + command + ", argumento: " + argument)
             client_send_message(sock, portrcv,
-                                comandos.ADD.__str__() + "-" + argument)
+                                str(comandos.ADD) + "-" + argument)
         elif(command == "/rmv"):
             # print("comando: " + command + ", argumento: " + argument)
             client_send_message(sock, portrcv, 
-                                comandos.RMV.__str__() + "-" + argument)
+                                str(comandos.RMV) + "-" + argument)
         elif(command == "/ban"):
             # print("comando: " + command + ", argumento: " + argument)
             client_send_message(sock, portrcv, 
-                                comandos.BAN.__str__() + "-" + argument)
+                                str(comandos.BAN) + "-" + argument)
         elif(command == "/help"):
             # print("comando: " + command)
             client_send_message(sock, portrcv, 
-                                comandos.HELP.__str__() + "-")
+                                str(comandos.HELP) + "-")
         elif(command == "/kill"):
             print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
             set_kill(True) # encerra o aplicativo
             # client_send_message(sock, 
-            #                     comandos.KILL.__str__() + "-")
+            #                     str(comandos.KILL) + "-")
         elif(command == "/ignore"):
             # print("comando: " + command)
             client_send_message(sock, portrcv, 
-                                comandos.IGN.__str__() + "-")
+                                str(comandos.IGN) + "-")
         else:
             print("enviando: " + _input)
             client_send_message(sock, portrcv, 
-                                comandos.MSG.__str__() + "-" + _input) 
+                                str(comandos.MSG) + "-" + _input) 
