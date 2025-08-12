@@ -10,8 +10,8 @@ def main():
     client.recv_start()
     portrcv = ((client.sock_recv.getsockname()[1]).to_bytes(4, 'big')).decode('latin1')
 
-    thread_entrada = threading.Thread(target=client.thread_userinput, args=[sock_send, portrcv])
-    thread_receiver = threading.Thread(target=client.thread_receive, args=[sock_recv])
+    thread_entrada = threading.Thread(target=client.thread_userinput, args=[portrcv])
+    thread_receiver = threading.Thread(target=client.thread_receive)
     thread_entrada.daemon = True
     thread_receiver.daemon = True
 
