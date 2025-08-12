@@ -1,6 +1,6 @@
 import socket
 from config.settings import SERVER_IP, SERVER_PORT
-from server.server import server_receive_message, server_send_message
+from server.server import Server
 from utils.utils import comandos
 
 def main():
@@ -8,19 +8,21 @@ def main():
     sock.bind((SERVER_IP, SERVER_PORT))
     print(f"Servidor iniciado em {SERVER_IP}:{SERVER_PORT}")
 
+    server = Server(sock)
+
     while True:
-        
-        message, addr = server_receive_message(sock)
+        is_for_all = False
+        message, addr = server.server_receive_message()
         split = message.split('-', 1) 
         command = split[0]
         argument = "" if (len(split) <= 1) else split[1] 
 
-        print("recebeu: " + command[9:] + " e " + argument + " do endereço: " + addr.__str__())
+        print(f"recebeu: {command} e {argument} do endereço: {addr}")
         if(argument == "destroy the mainframe"):
             break
         elif (command == str(comandos.OLA)):
             # coloca o usuário na lista de conectados
-            message = "usuario " + argument + " entrou na sala"
+            is_for_all, message = server.add_client(argument, addr)
         elif (command == str(comandos.TCHAU)):
             # tira o usuário na lista de conectados
             argument = str(addr) # buscar o nome de usuario a partir do endereço
@@ -57,14 +59,18 @@ def main():
             message = argument
         
         # se for um comando, adiciona esses símbolos para diferenciar de uma mensagem normal
-        if command == str(comandos.MSG): 
-            message = str(addr) + "/user: " + message + " <hora-data>"
+        if command == str(comandos.MSG.value): 
+            user = "idk" # server.find_client(addr) 
+            message = f"{addr}/{user}: {message}" 
         else:
-            message = "-=-=-=-=-\n" + message + "\n-=-=-=-=-"
-        
-        print("enviando: " + message)
-        server_send_message(sock, addr, message)
+            message = "-=-\n" + message + "\n-=-"
 
+        print(f"enviando: {command} {message}") 
+        if is_for_all: 
+            server.broadcast_message(command + "-" + message)
+        else: 
+            server.server_send_message(addr, command + "-" + message)
+            
     sock.close()
 
 if __name__ == "__main__":
