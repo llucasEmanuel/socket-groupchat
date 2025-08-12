@@ -7,7 +7,12 @@ def main():
     sock_recv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     client = Client(sock_send, sock_recv)
-    client.recv_start()
+    try:
+        client.recv_start()
+    except:
+        print("Erro iniciando conexão...")
+        exit(1)
+
     portrcv = ((client.sock_recv.getsockname()[1]).to_bytes(4, 'big')).decode('latin1')
 
     thread_entrada = threading.Thread(target=client.thread_userinput, args=[portrcv])

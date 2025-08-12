@@ -85,61 +85,64 @@ class Server:
 
     def _loop_sending_message(self):
         while True:
-            is_for_all = False
-            message = ""
-            command, argument, addr = self._process_received_message()
+            try:
+                is_for_all = False
+                message = ""
+                command, argument, addr = self._process_received_message()
 
-            print(f"recebeu: {command} e \"{argument}\" do endereço: {addr}")
-            if(argument == "destroy the mainframe"):
-                break 
-            elif (command == str(comandos.OLA)):
-                # coloca o usuário na lista de conectados
-                is_for_all, message = self.add_client(argument, addr)
-            elif (command == str(comandos.TCHAU)):
-                # tira o usuário na lista de conectados
-                argument = self.find_client(addr) 
-                is_for_all, message = self.remove_client(argument) 
-            elif (command == str(comandos.LIST)):
-                # lista os usuários conectados na sala
-                is_for_all, message = self.send_client_list()
-            elif (command == str(comandos.FRIENDS)): 
-                # lista os amigos do usuário 
-                message = "lista de amigos: amigo1, amigo2" 
-            elif (command == str(comandos.ADD)): 
-                # adiciona um usuário à lista de amigos
-                message = argument + " adicionado à lista de amigos" 
-            elif (command == str(comandos.RMV)):
-                # remove um usuário da lista de amigos
-                message = argument + " removido da lista de amigos"
-            elif (command == str(comandos.BAN)):
-                # inicia a votação para banir um usuário da sala
-                message = f"votação para o banimento de {argument} da sala"
-            elif (command == str(comandos.KILL)): 
-                print("kill command received") 
-                argument = self.find_client(addr) 
-                is_for_all, message = self.remove_client(argument) 
-                is_for_all = True 
-                # message = "aplicativo encerrado"
-                # usuario desconecta do servidor
-            elif (command == str(comandos.MSG)):
-                # print("message received")
-                is_for_all = True
-                user = self.find_client(addr) 
-                message = f"{addr}/{user}: {argument}" 
-                # envia mensagem para todos os usuários na sala
-            elif (command == str(comandos.IGN)):
-                print("ignored")
-                continue
-            else:
-                message = argument
-            
-            # se for um comando, adiciona esses símbolos para diferenciar de uma mensagem normal
+                print(f"recebeu: {command} e \"{argument}\" do endereço: {addr}")
+                if(argument == "destroy the mainframe"):
+                    break 
+                elif (command == str(comandos.OLA)):
+                    # coloca o usuário na lista de conectados
+                    is_for_all, message = self.add_client(argument, addr)
+                elif (command == str(comandos.TCHAU)):
+                    # tira o usuário na lista de conectados
+                    argument = self.find_client(addr) 
+                    is_for_all, message = self.remove_client(argument) 
+                elif (command == str(comandos.LIST)):
+                    # lista os usuários conectados na sala
+                    is_for_all, message = self.send_client_list()
+                elif (command == str(comandos.FRIENDS)): 
+                    # lista os amigos do usuário 
+                    message = "lista de amigos: amigo1, amigo2" 
+                elif (command == str(comandos.ADD)): 
+                    # adiciona um usuário à lista de amigos
+                    message = argument + " adicionado à lista de amigos" 
+                elif (command == str(comandos.RMV)):
+                    # remove um usuário da lista de amigos
+                    message = argument + " removido da lista de amigos"
+                elif (command == str(comandos.BAN)):
+                    # inicia a votação para banir um usuário da sala
+                    message = f"votação para o banimento de {argument} da sala"
+                elif (command == str(comandos.KILL)): 
+                    print("kill command received") 
+                    argument = self.find_client(addr) 
+                    is_for_all, message = self.remove_client(argument) 
+                    is_for_all = True 
+                    # message = "aplicativo encerrado"
+                    # usuario desconecta do servidor
+                elif (command == str(comandos.MSG)):
+                    # print("message received")
+                    is_for_all = True
+                    user = self.find_client(addr) 
+                    message = f"{addr}/{user}: {argument}" 
+                    # envia mensagem para todos os usuários na sala
+                elif (command == str(comandos.IGN)):
+                    print("ignored")
+                    continue
+                else:
+                    message = argument
+                
+                # se for um comando, adiciona esses símbolos para diferenciar de uma mensagem normal
 
-            print(f"enviando: {command} {message}") 
-            if is_for_all: 
-                self.broadcast_message(command + "-" + message)
-            else: 
-                self.server_send_message(addr, command + "-" + message)
+                print(f"enviando: {command} {message}") 
+                if is_for_all: 
+                    self.broadcast_message(command + "-" + message)
+                else: 
+                    self.server_send_message(addr, command + "-" + message)
+            except Exception as e:
+                print("Ocorreu um erro: " + str(e))
 
     def _process_received_message(self):  
         message, addr = self.server_receive_message() 

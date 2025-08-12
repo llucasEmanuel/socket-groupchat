@@ -51,57 +51,57 @@ class Client:
             _input, command, argument = self.client_input()
             if _input == "":
                 continue
-            
-            # Envia o arquivo para o servidor a partir do socket UDP
-            # cada comando deve ter uma função que será criada por outro colaborador
-            if(command == "abort"):
-                set_kill(True) 
-                continue 
-            if  (command == "/ola"):
-                # print("comando: " + command + ", argumento: " + argument)
-                self.client_send_message(portrcv,
-                                    str(comandos.OLA) + "-" + argument)
-            elif(command == "/tchau"):
-                print("comando: " + command)
-                self.client_send_message(portrcv,
-                                    str(comandos.TCHAU) + "-" + argument)
-            elif(command == "/list"):
-                print("comando: " + command)
-                self.client_send_message(portrcv,
-                                    str(comandos.LIST) + "-")
-            elif(command == "/friends"):
-                # ser lista de amigos conectados
-                print("comando: " + command)
-                self.client_send_message(portrcv,
-                                    str(comandos.FRIENDS) + "-")
-            elif(command == "/add"):
-                # print("comando: " + command + ", argumento: " + argument)
-                self.client_send_message(portrcv,
-                                    str(comandos.ADD) + "-" + argument)
-            elif(command == "/rmv"):
-                # print("comando: " + command + ", argumento: " + argument)
-                self.client_send_message(portrcv, 
-                                    str(comandos.RMV) + "-" + argument)
-            elif(command == "/ban"):
-                # print("comando: " + command + ", argumento: " + argument)
-                self.client_send_message(portrcv, 
-                                    str(comandos.BAN) + "-" + argument)
-            elif(command == "/help"):
-                # lista os comandos disponíveis a depender do status do usuário
-                print("comandos disponíveis: \n\t/ola, \n\t/tchau, \n\t/list, \n\t/friends, \n\t/add <user>, \n\t/rmv <user>, \n\t/ban <user>, \n\t/help, \n\t/kill")
-            elif(command == "/kill"):
-                set_kill(True) # encerra o aplicativo
-                self.client_send_message(portrcv,
-                                     str(comandos.KILL) + "-")
-                print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
-            elif(command == "/ignore"):
-                # print("comando: " + command)
-                self.client_send_message(portrcv, 
-                                    str(comandos.IGN) + "-")
-            else:
-                print("enviando: " + _input)
-                self.client_send_message(portrcv, 
-                                    str(comandos.MSG) + "-" + _input) 
+            try:
+                if(command == "abort"):
+                    set_kill(True) 
+                    continue 
+                if  (command == "/ola"):
+                    # print("comando: " + command + ", argumento: " + argument)
+                    self.client_send_message(portrcv,
+                                        str(comandos.OLA) + "-" + argument)
+                elif(command == "/tchau"):
+                    print("comando: " + command)
+                    self.client_send_message(portrcv,
+                                        str(comandos.TCHAU) + "-" + argument)
+                elif(command == "/list"):
+                    print("comando: " + command)
+                    self.client_send_message(portrcv,
+                                        str(comandos.LIST) + "-")
+                elif(command == "/friends"):
+                    # ser lista de amigos conectados
+                    print("comando: " + command)
+                    self.client_send_message(portrcv,
+                                        str(comandos.FRIENDS) + "-")
+                elif(command == "/add"):
+                    # print("comando: " + command + ", argumento: " + argument)
+                    self.client_send_message(portrcv,
+                                        str(comandos.ADD) + "-" + argument)
+                elif(command == "/rmv"):
+                    # print("comando: " + command + ", argumento: " + argument)
+                    self.client_send_message(portrcv, 
+                                        str(comandos.RMV) + "-" + argument)
+                elif(command == "/ban"):
+                    # print("comando: " + command + ", argumento: " + argument)
+                    self.client_send_message(portrcv, 
+                                        str(comandos.BAN) + "-" + argument)
+                elif(command == "/help"):
+                    # lista os comandos disponíveis a depender do status do usuário
+                    print("comandos disponíveis: \n\t/ola, \n\t/tchau, \n\t/list, \n\t/friends, \n\t/add <user>, \n\t/rmv <user>, \n\t/ban <user>, \n\t/help, \n\t/kill")
+                elif(command == "/kill"):
+                    set_kill(True) # encerra o aplicativo
+                    self.client_send_message(portrcv,
+                                        str(comandos.KILL) + "-")
+                    print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
+                elif(command == "/ignore"):
+                    # print("comando: " + command)
+                    self.client_send_message(portrcv, 
+                                        str(comandos.IGN) + "-")
+                else:
+                    print("enviando: " + _input)
+                    self.client_send_message(portrcv, 
+                                        str(comandos.MSG) + "-" + _input) 
+            except:
+                print("Ocorreu um erro de conexão...")
 
     def client_input(self):
         _input = input("> ")

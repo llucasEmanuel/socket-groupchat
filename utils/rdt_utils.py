@@ -16,7 +16,7 @@ ONE_B = (1).to_bytes(BUFFER_SIZE, 'big')
 ZERO_B = (0).to_bytes(BUFFER_SIZE, 'big')
 
 # Porcentagem de haver perda de pacotes no simulador
-LOSS_P = 0.2
+LOSS_P = 0.001
 
 # Envia o pacote com a probabilidade de perda determinada por LOSS_P
 def send_with_loss_sim(sock, data, addr):
