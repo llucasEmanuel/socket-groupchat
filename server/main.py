@@ -25,20 +25,11 @@ def main():
             is_for_all, message = server.add_client(argument, addr)
         elif (command == str(comandos.TCHAU)):
             # tira o usuário na lista de conectados
-            argument = str(addr) # buscar o nome de usuario a partir do endereço
-            message = "usuario " + argument + " saiu da sala"
+            argument = server.find_client(addr) 
+            is_for_all, message = server.remove_client(argument) 
         elif (command == str(comandos.LIST)):
             # lista os usuários conectados na sala
             is_for_all, message = server.send_client_list()
-        elif (command == str(comandos.FRIENDS)):
-            # lista os amigos do usuário
-            message = "lista de amigos: amigo1, amigo2"
-        elif (command == str(comandos.ADD)):
-            # adiciona um usuário à lista de amigos
-            message = argument + " adicionado à lista de amigos"
-        elif (command == str(comandos.RMV)):
-            # remove um usuário da lista de amigos
-            message = argument + " removido da lista de amigos"
         elif (command == str(comandos.BAN)):
             # inicia a votação para banir um usuário da sala
             message = "votação para o banimento de " + argument + " da sala"
@@ -46,8 +37,12 @@ def main():
             # lista os comandos disponíveis a depender do status do usuário
             message = "comandos disponíveis: /ola, /tchau, /list, /friends, /add <user>, /rmv <user>, /ban <user>, /help, /kill"
             # se o usuario estiver conectado printa os disponiveis, se não, printa os outros 
-        elif (command == str(comandos.KILL)):
-            message = "aplicativo encerrado"
+        elif (command == str(comandos.KILL)): 
+            print("kill command received")
+            argument = server.find_client(addr) 
+            is_for_all, message = server.remove_client(argument) 
+            is_for_all = True 
+            # message = "aplicativo encerrado"
             # usuario desconecta do servidor
         elif (command == str(comandos.MSG)):
             message = argument

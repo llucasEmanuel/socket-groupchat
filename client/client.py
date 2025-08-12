@@ -60,12 +60,21 @@ class Client:
             split = message.split('-', 1) # melhorar isso
             command = split[0]
             argument = "" if (len(split) <= 1) else split[1] 
-
+            
             if command == str(comandos.MSG):
                 hora_data = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
                 message = f"{argument} <{hora_data}>"
             elif command == str(comandos.LIST):
                 message = self.print_client_list(argument) 
+            elif (command == str(comandos.FRIENDS)):
+                # lista os amigos do usuário 
+                message = "lista de amigos: amigo1, amigo2" 
+            elif (command == str(comandos.ADD)):
+                # adiciona um usuário à lista de amigos
+                message = argument + " adicionado à lista de amigos"
+            elif (command == str(comandos.RMV)):
+                # remove um usuário da lista de amigos
+                message = argument + " removido da lista de amigos"
             else: 
                 message = argument
             
@@ -81,7 +90,10 @@ class Client:
                 continue
             
             # Envia o arquivo para o servidor a partir do socket UDP
-            # cada comando deve ter uma função que será criada por outro colaborador
+            # cada comando deve ter uma função que será criada por outro colaborador 
+            if(command == "abort"): 
+                set_kill(True) 
+                continue 
             if  (command == "/ola"):
                 # print("comando: " + command + ", argumento: " + argument)
                 self.client_send_message(portrcv,
@@ -117,8 +129,8 @@ class Client:
             elif(command == "/kill"):
                 print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
                 set_kill(True) # encerra o aplicativo
-                # self.client_send_message(
-                #                     str(comandos.KILL) + "-")
+                self.client_send_message(portrcv,
+                                     str(comandos.KILL) + "-")
             elif(command == "/ignore"):
                 # print("comando: " + command)
                 self.client_send_message(portrcv, 

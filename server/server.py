@@ -41,24 +41,25 @@ class Server:
         # print(output_message)
         return is_for_all, output_message
 
-    def remove_client(self, sock, username, ban_on=False):
+    def remove_client(self, username, ban_on=False):
+        is_for_all = False 
         for client in self.client_list:
 
             if(username == client.username):
                 self.client_list.remove(client)
 
-                if(not ban_on):
+                if(not ban_on): 
+                    is_for_all = True
                     output_message = f"[Server] '{username}' saiu do chat."
-                    print(output_message)
-                    self.broadcast_message(sock, output_message)
                 else:
-                    print(f"[Server] '{username}' foi removido do chat.")
-
-                return
+                    output_message = f"[Server] '{username}' foi removido do chat."
+                # print(output_message)
+                return is_for_all, output_message
 
         output_message = "\033[33m[Server] ⚠️ Ocorreu um erro, não foi possível remover o usuário. ⚠️\033[0m"
-        print(output_message)
-                
+        # print(output_message)
+        return is_for_all, output_message
+
     # Envia a lista de clientes para o cliente de endereço addr que usou /list
     def send_client_list(self):
         client_names = [client.username for client in self.client_list]
@@ -68,6 +69,12 @@ class Server:
 
         # Envia apenas a string para o cliente
         return False, all_names_string
+
+    def find_client(self, addr):
+        for client in self.client_list:
+            if client.addr == addr:
+                return client.username
+        return "idk"
 
     def broadcast_message(self, message):
 
