@@ -1,5 +1,6 @@
 from config.settings import BUFFER_SIZE
 from utils.rdt_utils import send_with_loss_sim
+from utils.rdt_utils import kill
 
 # Estados do receptor RDT3.0
 WAIT_PKT_0 = "WAIT_PKT_0"
@@ -29,7 +30,7 @@ class RDT3Receiver:
         target_states = self.__transitions[self.__state]
 
         if new_state in target_states:
-            print(f"({self.__state}) ---> ({new_state})")
+            # print(f"({self.__state}) ---> ({new_state})")
             self.__state = new_state
         else:
             raise KeyError(f"Invalid transition from state '{self.__state}' to state '{new_state}'")
@@ -41,6 +42,13 @@ class RDT3Receiver:
         while True:
             try:
                 data, addr = sock.recvfrom(BUFFER_SIZE)
+
+                #if data == HANDSHAKE:
+                #    teria q ser rdt_send???
+                #    send_with_loss_sim(sock, NEGA_HANDSHAKE, addr)
+                #    continue
+                #
+
                 if self.__state == WAIT_PKT_0:
                     seqnum = data[0]
                     payload = data[1:]
@@ -65,5 +73,5 @@ class RDT3Receiver:
                         self.transition(WAIT_PKT_0)
                         return payload, addr
             except TimeoutError:
-                # Se ocorrer timeout, o receptor não deve fazer nada
-                ...
+                if kill():
+                    return b'EOF', (0,0)

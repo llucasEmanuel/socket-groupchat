@@ -2,6 +2,19 @@ import os
 from config.settings import BUFFER_SIZE, HEADER_SIZE
 from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
+from enum import Enum
+
+class comandos(Enum):
+    OLA = 0
+    TCHAU = 1
+    LIST = 2
+    FRIENDS = 3
+    ADD = 4
+    RMV = 5
+    BAN = 6
+    KILL = 7 
+    MSG = 8 
+    IGN = 9
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
@@ -9,7 +22,7 @@ def receive_file(sock, file_prefix):
 
     # Inicializa receiver rdt3.0
     receiver = RDT3Receiver()
-    sock.settimeout(1)
+    sock.settimeout(0.2)
 
     print("\nInício do receptor")
 
@@ -49,7 +62,7 @@ def send_file(sock, addr, file_path):
 
         # Inicializa sender rdt3.0
         sender = RDT3Sender()
-        sock.settimeout(1)
+        sock.settimeout(0.2)
 
         print("\nInício do transmissor")
         # Envia primeiro o nome do arquivo
@@ -76,3 +89,45 @@ def send_file(sock, addr, file_path):
     # Envia o marcador do fim do arquivo
     sender.rdt_send(sock, addr, b'EOF')
     print(f"Arquivo '{file_name}' enviado com sucesso")
+    
+def send_message(sock, addr, message):
+    # Inicializa sender rdt3.0
+    sender = RDT3Sender()
+    sock.settimeout(3)
+    # print("\nEnviando mensagem...")
+
+    #sender.rdt_send(sock, addr, HANDSHAKE)
+    #while(recebe_resposta() == NEGA_HANDSHAKE):
+    #    espera um segundo
+    #    manda dnovo
+
+    # Envia os dados do arquivo
+    while True:
+        data = message[:DATA_SIZE]
+        message = message[DATA_SIZE:]
+        # print("sending: '" + data + "'")
+        if not data:
+            break
+        sender.rdt_send(sock, addr, data.encode())
+
+    # Envia o marcador do fim do arquivo
+    sender.rdt_send(sock, addr, b'EOF')
+    # print("Mensagem enviada com sucesso")
+
+def receive_message(sock):
+    # Inicializa receiver rdt3.0
+    receiver = RDT3Receiver()
+    sock.settimeout(3)
+    # print("\nRecebendo mensagem...")
+    message = ""
+    addr = 0
+
+    # Recebe os dados até o EOF
+    while True:
+        data, addr = receiver.rdt_receive(sock)
+        if data == b'EOF':
+            break
+        message += data.decode()
+    
+    # print("Mensagem recebida com sucesso")
+    return message, addr
