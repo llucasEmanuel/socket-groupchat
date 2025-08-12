@@ -21,7 +21,7 @@ class Server:
         for banned_client in self.ban_list:
             if(username == banned_client.username):
                 output_message = f"\033[31m[Server] ☠️ Acesso negado ☠️: '{username}' foi banido do chat!! \033[0m"
-                print(output_message) 
+                # print(output_message) 
                 return is_for_all, output_message
             
         # caso já exista um username igual no chat
@@ -29,7 +29,7 @@ class Server:
             if(username == client.username):
 
                 output_message = f"\033[33m[Server] ⚠️ o username '{username}' já está em uso. ⚠️\033[0m"
-                print(output_message)
+                # print(output_message)
                 return is_for_all, output_message
 
         # adicionando novo cliente
@@ -38,7 +38,7 @@ class Server:
 
         is_for_all = True
         output_message = f"[Server] '{username}' foi adicionado ao chat."
-        print(output_message)
+        # print(output_message)
         return is_for_all, output_message
 
     def remove_client(self, sock, username, ban_on=False):
@@ -60,14 +60,14 @@ class Server:
         print(output_message)
                 
     # Envia a lista de clientes para o cliente de endereço addr que usou /list
-    def send_client_list(self, sock, addr):
+    def send_client_list(self):
         client_names = [client.username for client in self.client_list]
 
         # Concatena os nomes dos clientes em uma string (usa \0 para separar cada username)
         all_names_string = "\0".join(client_names)
 
         # Envia apenas a string para o cliente
-        send_message(sock, addr, all_names_string)
+        return False, all_names_string
 
     def broadcast_message(self, message):
 

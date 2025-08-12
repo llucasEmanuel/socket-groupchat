@@ -4,24 +4,22 @@ from utils.utils import receive_file, send_file, receive_message, send_message
 from utils.rdt_utils import kill, set_kill
 from utils.utils import comandos
 
+from datetime import datetime
+
 class Client:
     def __init__(self, sock_send, sock_recv):
         self.friend_list = []
         self.sock_send = sock_send
         self.sock_recv = sock_recv
 
-    def get_client_list(self, sock):
-        # client_names_str terá o formato "<user1>\0<user2>\0<user3>"
-        client_names_str = receive_message(sock)
-        name_list = client_names_str.split('\0')
-        return name_list
-    
     # O recomendado é chamar o get_client_list antes de chamar essa função
-    def print_client_list(self, name_list):
-        print("==== LISTA DE USUÁRIOS ====")
+    def print_client_list(self, client_names_str):
+        name_list = client_names_str.split('\0')
+        message = "==== LISTA DE USUÁRIOS ====\n"
 
         for i, username in enumerate(name_list):
-            print(f"{i+1} - {username}")
+            message = message + f"{i+1} - {username}\n"
+        return message
 
     def recv_start(self):
         send_message(self.sock_recv, (SERVER_IP, SERVER_PORT), 
@@ -58,6 +56,19 @@ class Client:
     def thread_receive(self):
         while not kill():
             message = self.client_receive_message()
+
+            split = message.split('-', 1) # melhorar isso
+            command = split[0]
+            argument = "" if (len(split) <= 1) else split[1] 
+
+            if command == str(comandos.MSG):
+                hora_data = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+                message = f"{argument} <{hora_data}>"
+            elif command == str(comandos.LIST):
+                message = self.print_client_list(argument) 
+            else: 
+                message = argument
+            
             print("\n"+message+"\n> ",end="")
             if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
                 break

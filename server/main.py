@@ -29,7 +29,7 @@ def main():
             message = "usuario " + argument + " saiu da sala"
         elif (command == str(comandos.LIST)):
             # lista os usuários conectados na sala
-            message = "lista de usuarios: \nuser1, \nuser2, \nuser3"
+            is_for_all, message = server.send_client_list()
         elif (command == str(comandos.FRIENDS)):
             # lista os amigos do usuário
             message = "lista de amigos: amigo1, amigo2"
@@ -62,8 +62,6 @@ def main():
         if command == str(comandos.MSG.value): 
             user = "idk" # server.find_client(addr) 
             message = f"{addr}/{user}: {message}" 
-        else:
-            message = "-=-\n" + message + "\n-=-"
 
         print(f"enviando: {command} {message}") 
         if is_for_all: 
