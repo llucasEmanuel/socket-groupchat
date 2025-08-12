@@ -1,6 +1,8 @@
 import os
 from utils.utils import receive_file, send_file, receive_message, send_message
 
+from utils.utils import comandos
+
 class ClientRegister:
     def __init__(self, username, addr):
         self.username = username
@@ -76,10 +78,84 @@ class Server:
                 return client.username
         return "idk"
 
+    def server_receive_message(self):
+        message, (ip, _) = receive_message(self.sock)
+        # print(int.from_bytes((message[:4]).encode('latin1'), 'big'))
+        return message[4:], (ip, int.from_bytes((message[:4]).encode('latin1'), 'big')) 
+
+    def _loop_sending_message(self):
+        while True:
+            is_for_all = False
+            message = ""
+            command, argument, addr = self._process_received_message()
+
+            print(f"recebeu: {command} e \"{argument}\" do endereço: {addr}")
+            if(argument == "destroy the mainframe"):
+                break 
+            elif (command == str(comandos.OLA)):
+                # coloca o usuário na lista de conectados
+                is_for_all, message = self.add_client(argument, addr)
+            elif (command == str(comandos.TCHAU)):
+                # tira o usuário na lista de conectados
+                argument = self.find_client(addr) 
+                is_for_all, message = self.remove_client(argument) 
+            elif (command == str(comandos.LIST)):
+                # lista os usuários conectados na sala
+                is_for_all, message = self.send_client_list()
+            elif (command == str(comandos.FRIENDS)): 
+                # lista os amigos do usuário 
+                message = "lista de amigos: amigo1, amigo2" 
+            elif (command == str(comandos.ADD)): 
+                # adiciona um usuário à lista de amigos
+                message = argument + " adicionado à lista de amigos" 
+            elif (command == str(comandos.RMV)):
+                # remove um usuário da lista de amigos
+                message = argument + " removido da lista de amigos"
+            elif (command == str(comandos.BAN)):
+                # inicia a votação para banir um usuário da sala
+                message = f"votação para o banimento de {argument} da sala"
+            elif (command == str(comandos.KILL)): 
+                print("kill command received") 
+                argument = self.find_client(addr) 
+                is_for_all, message = self.remove_client(argument) 
+                is_for_all = True 
+                # message = "aplicativo encerrado"
+                # usuario desconecta do servidor
+            elif (command == str(comandos.MSG)):
+                # print("message received")
+                is_for_all = True
+                user = self.find_client(addr) 
+                message = f"{addr}/{user}: {argument}" 
+                # envia mensagem para todos os usuários na sala
+            elif (command == str(comandos.IGN)):
+                print("ignored")
+                continue
+            else:
+                message = argument
+            
+            # se for um comando, adiciona esses símbolos para diferenciar de uma mensagem normal
+
+            print(f"enviando: {command} {message}") 
+            if is_for_all: 
+                self.broadcast_message(command + "-" + message)
+            else: 
+                self.server_send_message(addr, command + "-" + message)
+
+    def _process_received_message(self):  
+        message, addr = self.server_receive_message() 
+        split = message.split('-', 1) 
+        command = split[0] 
+        argument = "" if (len(split) <= 1) else split[1] 
+        return command, argument, addr 
+
     def broadcast_message(self, message):
 
         for client in self.client_list:
             self.server_send_message(client.addr, message)
+    
+    def server_send_message(self, addr, message):
+        # Sempre envia para o servidor
+        send_message(self.sock, addr, message)
 
     def server_receive_file(self, file_prefix="recv_"):
         file_prefix = os.path.join("server", "data", file_prefix)
@@ -89,12 +165,3 @@ class Server:
     def server_send_file(self, addr, file_name):
         file_path = os.path.join("server", "data", file_name)
         send_file(self.sock, addr, file_path)
-
-    def server_receive_message(self):
-        message, (ip, _) = receive_message(self.sock)
-        # print(int.from_bytes((message[:4]).encode('latin1'), 'big'))
-        return message[4:], (ip, int.from_bytes((message[:4]).encode('latin1'), 'big')) 
-
-    def server_send_message(self, addr, message):
-        # Sempre envia para o servidor
-        send_message(self.sock, addr, message)

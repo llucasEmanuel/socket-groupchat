@@ -12,10 +12,9 @@ class comandos(Enum):
     ADD = 4
     RMV = 5
     BAN = 6
-    HELP = 7
-    KILL = 8
-    MSG = 9 
-    IGN = 10
+    KILL = 7 
+    MSG = 8 
+    IGN = 9
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
@@ -94,7 +93,7 @@ def send_file(sock, addr, file_path):
 def send_message(sock, addr, message):
     # Inicializa sender rdt3.0
     sender = RDT3Sender()
-    sock.settimeout(1)
+    sock.settimeout(3)
     # print("\nEnviando mensagem...")
 
     #sender.rdt_send(sock, addr, HANDSHAKE)
@@ -118,7 +117,7 @@ def send_message(sock, addr, message):
 def receive_message(sock):
     # Inicializa receiver rdt3.0
     receiver = RDT3Receiver()
-    sock.settimeout(1)
+    sock.settimeout(3)
     # print("\nRecebendo mensagem...")
     message = ""
     addr = 0

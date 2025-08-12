@@ -12,55 +12,18 @@ class Client:
         self.sock_send = sock_send
         self.sock_recv = sock_recv
 
-    # O recomendado é chamar o get_client_list antes de chamar essa função
-    def print_client_list(self, client_names_str):
-        name_list = client_names_str.split('\0')
-        message = "==== LISTA DE USUÁRIOS ====\n"
-
-        for i, username in enumerate(name_list):
-            message = message + f"{i+1} - {username}\n"
-        return message
-
     def recv_start(self):
         send_message(self.sock_recv, (SERVER_IP, SERVER_PORT), 
                      ((2025).to_bytes(4, 'big')).decode('latin1') + str(comandos.IGN) + "-ignore")
 
-    def client_receive_message(self):
-        message, _ = receive_message(self.sock_recv)
-        return message
-
-    def client_send_message(self, portrcv : str, message : str):
-        # Sempre envia para o servidor
-        send_message(self.sock_send, (SERVER_IP, SERVER_PORT), 
-                     portrcv + message)
-
-    def client_receive_file(self, file_prefix="recv_"):
-        file_prefix = os.path.join("client", "data", file_prefix)
-        sender_addr = receive_file(self.sock_recv, file_prefix)
-        return sender_addr
-
-    def client_send_file(self, file_name):
-        file_path = os.path.join("client", "data", file_name)
-        # Sempre envia para o servidor
-        send_file(self.sock_send, (SERVER_IP, SERVER_PORT), file_path)
-
-    def client_input(self):
-        _input = input("> ")
-        split = _input.split(' ', 2) 
-        command = split[0]
-        argument = ""
-        if len(split) > 1:
-            argument = split[1]
-        return _input, command, argument
-
     def thread_receive(self):
         while not kill():
-            message = self.client_receive_message()
+            message, addr = self.client_receive_message()
 
             split = message.split('-', 1) # melhorar isso
             command = split[0]
             argument = "" if (len(split) <= 1) else split[1] 
-            
+
             if command == str(comandos.MSG):
                 hora_data = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
                 message = f"{argument} <{hora_data}>"
@@ -71,7 +34,7 @@ class Client:
                 message = "lista de amigos: amigo1, amigo2" 
             elif (command == str(comandos.ADD)):
                 # adiciona um usuário à lista de amigos
-                message = argument + " adicionado à lista de amigos"
+                message = argument + " adicionado à lista de amigos" 
             elif (command == str(comandos.RMV)):
                 # remove um usuário da lista de amigos
                 message = argument + " removido da lista de amigos"
@@ -90,8 +53,8 @@ class Client:
                 continue
             
             # Envia o arquivo para o servidor a partir do socket UDP
-            # cada comando deve ter uma função que será criada por outro colaborador 
-            if(command == "abort"): 
+            # cada comando deve ter uma função que será criada por outro colaborador
+            if(command == "abort"):
                 set_kill(True) 
                 continue 
             if  (command == "/ola"):
@@ -107,6 +70,7 @@ class Client:
                 self.client_send_message(portrcv,
                                     str(comandos.LIST) + "-")
             elif(command == "/friends"):
+                # ser lista de amigos conectados
                 print("comando: " + command)
                 self.client_send_message(portrcv,
                                     str(comandos.FRIENDS) + "-")
@@ -123,14 +87,13 @@ class Client:
                 self.client_send_message(portrcv, 
                                     str(comandos.BAN) + "-" + argument)
             elif(command == "/help"):
-                # print("comando: " + command)
-                self.client_send_message(portrcv, 
-                                    str(comandos.HELP) + "-")
+                # lista os comandos disponíveis a depender do status do usuário
+                print("comandos disponíveis: \n\t/ola, \n\t/tchau, \n\t/list, \n\t/friends, \n\t/add <user>, \n\t/rmv <user>, \n\t/ban <user>, \n\t/help, \n\t/kill")
             elif(command == "/kill"):
-                print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
                 set_kill(True) # encerra o aplicativo
                 self.client_send_message(portrcv,
                                      str(comandos.KILL) + "-")
+                print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
             elif(command == "/ignore"):
                 # print("comando: " + command)
                 self.client_send_message(portrcv, 
@@ -139,3 +102,43 @@ class Client:
                 print("enviando: " + _input)
                 self.client_send_message(portrcv, 
                                     str(comandos.MSG) + "-" + _input) 
+
+    def client_input(self):
+        _input = input("> ")
+        split = _input.split(' ', 2) 
+        command = split[0]
+        argument = ""
+        if len(split) > 1:
+            argument = split[1]
+        return _input, command, argument
+
+    def client_receive_message(self):
+        message, addr = receive_message(self.sock_recv)
+        return message, addr
+
+    def client_send_message(self, portrcv : str, message : str):
+        # Sempre envia para o servidor
+        send_message(self.sock_send, (SERVER_IP, SERVER_PORT), 
+                     portrcv + message)
+
+    def client_receive_file(self, file_prefix="recv_"):
+        file_prefix = os.path.join("client", "data", file_prefix)
+        sender_addr = receive_file(self.sock_recv, file_prefix)
+        return sender_addr
+
+    def client_send_file(self, file_name):
+        file_path = os.path.join("client", "data", file_name)
+        # Sempre envia para o servidor
+        send_file(self.sock_send, (SERVER_IP, SERVER_PORT), file_path)
+
+    def print_client_list(self, client_names_str):
+        name_list = client_names_str.split('\0')
+
+        if not name_list:
+            return "Nenhum usuário conectado."
+
+        message = "==== LISTA DE USUÁRIOS ====\n"
+        for i, username in enumerate(name_list):
+            message = message + f"{i+1} - {username}\n"
+
+        return message
