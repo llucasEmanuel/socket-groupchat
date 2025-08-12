@@ -6,11 +6,19 @@ from utils.utils import comandos
 
 from datetime import datetime
 
+# TODO add value to command encoding from comandos enum
 class Client:
     def __init__(self, sock_send, sock_recv):
         self.friend_list = []
         self.sock_send = sock_send
         self.sock_recv = sock_recv
+        self.online = False
+    
+    def _inputprint(self):
+        if(self.online):
+            return "\033[32m> \033[0m"
+        else:
+            return "> "
 
     def recv_start(self):
         send_message(self.sock_recv, (SERVER_IP, SERVER_PORT), 
@@ -41,7 +49,7 @@ class Client:
             else: 
                 message = argument
             
-            print("\n"+message+"\n> ",end="")
+            print("\n"+message+"\n" + self._inputprint(),end="")
             if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
                 break
 
@@ -55,45 +63,48 @@ class Client:
                 if(command == "abort"):
                     set_kill(True) 
                     continue 
+
                 if  (command == "/ola"):
-                    # print("comando: " + command + ", argumento: " + argument)
-                    self.client_send_message(portrcv,
-                                        str(comandos.OLA) + "-" + argument)
+                    if(not self.online):
+                        self.client_send_message(portrcv,
+                                            str(comandos.OLA) + "-" + argument)
+                        self.online = True
                 elif(command == "/tchau"):
-                    print("comando: " + command)
-                    self.client_send_message(portrcv,
-                                        str(comandos.TCHAU) + "-" + argument)
+                    if(self.online):
+                        self.client_send_message(portrcv,
+                                            str(comandos.TCHAU) + "-" + argument)
+                        self.online = False
                 elif(command == "/list"):
-                    print("comando: " + command)
-                    self.client_send_message(portrcv,
-                                        str(comandos.LIST) + "-")
+                    if(self.online):
+                        self.client_send_message(portrcv,
+                                            str(comandos.LIST) + "-")
                 elif(command == "/friends"):
-                    # ser lista de amigos conectados
-                    print("comando: " + command)
+                    # ser lista de amigos conectados (?)
                     self.client_send_message(portrcv,
                                         str(comandos.FRIENDS) + "-")
                 elif(command == "/add"):
-                    # print("comando: " + command + ", argumento: " + argument)
-                    self.client_send_message(portrcv,
-                                        str(comandos.ADD) + "-" + argument)
+                    if(self.online):
+                        self.client_send_message(portrcv,
+                                            str(comandos.ADD) + "-" + argument)
                 elif(command == "/rmv"):
-                    # print("comando: " + command + ", argumento: " + argument)
                     self.client_send_message(portrcv, 
                                         str(comandos.RMV) + "-" + argument)
                 elif(command == "/ban"):
-                    # print("comando: " + command + ", argumento: " + argument)
-                    self.client_send_message(portrcv, 
-                                        str(comandos.BAN) + "-" + argument)
+                    if(self.online):
+                        self.client_send_message(portrcv, 
+                                            str(comandos.BAN) + "-" + argument)
                 elif(command == "/help"):
                     # lista os comandos disponíveis a depender do status do usuário
-                    print("comandos disponíveis: \n\t/ola, \n\t/tchau, \n\t/list, \n\t/friends, \n\t/add <user>, \n\t/rmv <user>, \n\t/ban <user>, \n\t/help, \n\t/kill")
+                    # TODO fazer um print pra cada linha
+                    print(
+                        "comandos disponíveis: \n\t/ola <nome> \n\t\t(entra no chat) \n\t/tchau \n\t\t(sai do chat) \n\t/list \n\t\t(lista pessoas online no chat) \n\t/friends \n\t\t(lista amigos) \n\t/add <user> \n\t\t(adiciona amigo) \n\t/rmv <user> \n\t\t(remove amigo) \n\t/ban <user> \n\t\t(inicia votação para banir usuario) \n\t/kill \n\t\t(fecha aplicativo) \n\t/help"
+                    )
                 elif(command == "/kill"):
                     set_kill(True) # encerra o aplicativo
                     self.client_send_message(portrcv,
                                         str(comandos.KILL) + "-")
                     print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
                 elif(command == "/ignore"):
-                    # print("comando: " + command)
                     self.client_send_message(portrcv, 
                                         str(comandos.IGN) + "-")
                 else:
@@ -104,7 +115,7 @@ class Client:
                 print("Ocorreu um erro de conexão...")
 
     def client_input(self):
-        _input = input("> ")
+        _input = input(self._inputprint())
         split = _input.split(' ', 2) 
         command = split[0]
         argument = ""
