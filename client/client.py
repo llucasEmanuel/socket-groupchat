@@ -4,94 +4,115 @@ from utils.utils import receive_file, send_file, receive_message, send_message
 from utils.rdt_utils import kill, set_kill
 from utils.utils import comandos
 
-def client_receive_file(sock, file_prefix="recv_"):
-    file_prefix = os.path.join("client", "data", file_prefix)
-    sender_addr = receive_file(sock, file_prefix)
-    return sender_addr
+class Client:
+    def __init__(self, sock_send, sock_recv):
+        self.friend_list = []
+        self.sock_send = sock_send
+        self.sock_recv = sock_recv
 
-def client_send_file(sock, file_name):
-    file_path = os.path.join("client", "data", file_name)
-    # Sempre envia para o servidor
-    send_file(sock, (SERVER_IP, SERVER_PORT), file_path)
+    def get_client_list(self, sock):
+        # client_names_str terá o formato "<user1>\0<user2>\0<user3>"
+        client_names_str = receive_message(sock)
+        name_list = client_names_str.split('\0')
+        return name_list
+    
+    # O recomendado é chamar o get_client_list antes de chamar essa função
+    def print_client_list(self, name_list):
+        print("==== LISTA DE USUÁRIOS ====")
 
-def client_receive_message(sock):
-    message, _ = receive_message(sock)
-    return message
+        for i, username in enumerate(name_list):
+            print(f"{i+1} - {username}")
 
-def client_send_message(sock, portrcv : str, message : str):
-    # Sempre envia para o servidor
-    send_message(sock, (SERVER_IP, SERVER_PORT), portrcv + message)
+    def recv_start(self):
+        send_message(self.sock_recv, (SERVER_IP, SERVER_PORT), 
+                     ((2025).to_bytes(4, 'big')).decode('latin1') + str(comandos.IGN) + "-ignore")
 
-def recv_start(sock):
-    client_send_message(sock, ((2025).to_bytes(4, 'big')).decode('latin1'), comandos.IGN.__str__() + "-ignore")
+    def client_receive_message(self):
+        message, _ = receive_message(self.sock_recv)
+        return message
 
-def client_input():
-    _input = input("> ")
-    split = _input.split(' ', 2) 
-    command = split[0]
-    argument = ""
-    if len(split) > 1:
-        argument = split[1]
-    return _input, command, argument
+    def client_send_message(self, portrcv : str, message : str):
+        # Sempre envia para o servidor
+        send_message(self.sock_send, (SERVER_IP, SERVER_PORT), 
+                     portrcv + message)
 
-def thread_receive(sock):
-    while not kill():
-        message = client_receive_message(sock)
-        print("\n"+message+"\n> ",end="")
-        if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
-            break
+    def client_receive_file(self, file_prefix="recv_"):
+        file_prefix = os.path.join("client", "data", file_prefix)
+        sender_addr = receive_file(self.sock_recv, file_prefix)
+        return sender_addr
 
-def thread_userinput(sock, portrcv : str):
-    while not kill():
+    def client_send_file(self, file_name):
+        file_path = os.path.join("client", "data", file_name)
+        # Sempre envia para o servidor
+        send_file(self.sock_send, (SERVER_IP, SERVER_PORT), file_path)
 
-        _input, command, argument = client_input()
-        if _input == "":
-            continue
-        
-        # Envia o arquivo para o servidor a partir do socket UDP
-        # cada comando deve ter uma função que será criada por outro colaborador
-        if  (command == "/ola"):
-            # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, portrcv,
-                                str(comandos.OLA) + "-" + argument)
-        elif(command == "/tchau"):
-            print("comando: " + command)
-            client_send_message(sock, portrcv,
-                                str(comandos.TCHAU) + "-" + argument)
-        elif(command == "/list"):
-            print("comando: " + command)
-            client_send_message(sock, portrcv,
-                                str(comandos.LIST) + "-")
-        elif(command == "/friends"):
-            print("comando: " + command)
-            client_send_message(sock, portrcv,
-                                str(comandos.FRIENDS) + "-")
-        elif(command == "/add"):
-            # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, portrcv,
-                                str(comandos.ADD) + "-" + argument)
-        elif(command == "/rmv"):
-            # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, portrcv, 
-                                str(comandos.RMV) + "-" + argument)
-        elif(command == "/ban"):
-            # print("comando: " + command + ", argumento: " + argument)
-            client_send_message(sock, portrcv, 
-                                str(comandos.BAN) + "-" + argument)
-        elif(command == "/help"):
-            # print("comando: " + command)
-            client_send_message(sock, portrcv, 
-                                str(comandos.HELP) + "-")
-        elif(command == "/kill"):
-            print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
-            set_kill(True) # encerra o aplicativo
-            # client_send_message(sock, 
-            #                     str(comandos.KILL) + "-")
-        elif(command == "/ignore"):
-            # print("comando: " + command)
-            client_send_message(sock, portrcv, 
-                                str(comandos.IGN) + "-")
-        else:
-            print("enviando: " + _input)
-            client_send_message(sock, portrcv, 
-                                str(comandos.MSG) + "-" + _input) 
+    def client_input(self):
+        _input = input("> ")
+        split = _input.split(' ', 2) 
+        command = split[0]
+        argument = ""
+        if len(split) > 1:
+            argument = split[1]
+        return _input, command, argument
+
+    def thread_receive(self):
+        while not kill():
+            message = self.client_receive_message()
+            print("\n"+message+"\n> ",end="")
+            if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
+                break
+
+    def thread_userinput(self, portrcv : str):
+        while not kill():
+
+            _input, command, argument = self.client_input()
+            if _input == "":
+                continue
+            
+            # Envia o arquivo para o servidor a partir do socket UDP
+            # cada comando deve ter uma função que será criada por outro colaborador
+            if  (command == "/ola"):
+                # print("comando: " + command + ", argumento: " + argument)
+                self.client_send_message(portrcv,
+                                    str(comandos.OLA) + "-" + argument)
+            elif(command == "/tchau"):
+                print("comando: " + command)
+                self.client_send_message(portrcv,
+                                    str(comandos.TCHAU) + "-" + argument)
+            elif(command == "/list"):
+                print("comando: " + command)
+                self.client_send_message(portrcv,
+                                    str(comandos.LIST) + "-")
+            elif(command == "/friends"):
+                print("comando: " + command)
+                self.client_send_message(portrcv,
+                                    str(comandos.FRIENDS) + "-")
+            elif(command == "/add"):
+                # print("comando: " + command + ", argumento: " + argument)
+                self.client_send_message(portrcv,
+                                    str(comandos.ADD) + "-" + argument)
+            elif(command == "/rmv"):
+                # print("comando: " + command + ", argumento: " + argument)
+                self.client_send_message(portrcv, 
+                                    str(comandos.RMV) + "-" + argument)
+            elif(command == "/ban"):
+                # print("comando: " + command + ", argumento: " + argument)
+                self.client_send_message(portrcv, 
+                                    str(comandos.BAN) + "-" + argument)
+            elif(command == "/help"):
+                # print("comando: " + command)
+                self.client_send_message(portrcv, 
+                                    str(comandos.HELP) + "-")
+            elif(command == "/kill"):
+                print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
+                set_kill(True) # encerra o aplicativo
+                # self.client_send_message(
+                #                     str(comandos.KILL) + "-")
+            elif(command == "/ignore"):
+                # print("comando: " + command)
+                self.client_send_message(portrcv, 
+                                    str(comandos.IGN) + "-")
+            else:
+                print("enviando: " + _input)
+                self.client_send_message(portrcv, 
+                                    str(comandos.MSG) + "-" + _input) 
