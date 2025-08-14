@@ -97,13 +97,13 @@ class Client:
                                             str(comandos.BAN) + "-" + argument)
                 elif(command == "/vote"):
                     if(self.online):
-                        if argument.lower() in ["yes", "no"]:
-                            self.client_send_message(portrcv,
-                                            str(comandos.VOTE) + "-" + argument)
+                        if argument.lower() in ['y', 'n']:
+                            self.client_send_message(portrcv, 
+                                                str(comandos.VOTE) + "-" + argument.lower())
                         else:
-                            print("Porfavor use /vote yes ou /vote no")
+                            print("Uso: /vote y ou /vote n")
                     else:
-                        print("Is necessary to be online to vote in a ban pool")
+                        print("Você precisa estar conectado para votar.")
                 elif(command == "/help"):
                     # lista os comandos disponíveis a depender do status do usuário
                     # TODO fazer um print pra cada linha

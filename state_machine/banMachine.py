@@ -35,7 +35,7 @@ class BanStateMachine:
         
         # Notifica todos sobre o início da votação
         message = f"[Server] Votação iniciada para banir '{target}'. Digite /vote y ou /vote n. Tempo: 60 segundos."
-        self.server.broadcast_message(f"8-{message}")
+        self.server.broadcast_message(f"{8}-{message}")
         
         # Envia status inicial da votação
         self._send_vote_status()
@@ -71,7 +71,7 @@ class BanStateMachine:
         
         # Envia mensagem de status para todos
         status_message = f"**[ {self.ban_target} ] ban {yes_votes}/{required_votes}**"
-        self.server.broadcast_message(f"8-{status_message}")
+        self.server.broadcast_message(f"{8}-{status_message}")
     
     def _check_vote_completion(self):
         yes_votes = sum(1 for vote in self.votes.values() if vote == 'y')
@@ -106,14 +106,14 @@ class BanStateMachine:
         
         # Notifica todos sobre o banimento
         ban_message = f"[Server] '{self.ban_target}' foi banido do chat."
-        self.server.broadcast_message(f"8-{ban_message}")
+        self.server.broadcast_message(f"{8}-{ban_message}")
         
         self._reset_voting()
     
     def _reject_ban(self):
         """Rejeita o banimento por falta de votos ou timeout"""
         reject_message = f"[Server] Votação para banir '{self.ban_target}' foi rejeitada."
-        self.server.broadcast_message(f"8-{reject_message}")
+        self.server.broadcast_message(f"{8}-{reject_message}")
         
         self._reset_voting()
     
@@ -138,7 +138,7 @@ class BanStateMachine:
             # Se o usuário sendo votado saiu, cancela a votação
             if username == self.ban_target:
                 cancel_message = f"[Server] Votação cancelada - '{username}' saiu do chat."
-                self.server.broadcast_message(f"8-{cancel_message}")
+                self.server.broadcast_message(f"{8}-{cancel_message}")
                 self._reset_voting()
                 return
             

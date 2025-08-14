@@ -122,12 +122,18 @@ class Server:
                 elif (command == str(comandos.VOTE)):
                     # processa voto para banimento
                     voter_username = self.find_client(addr)
-                    message = self.ban_Machine.receive_vote(voter_username, argument)
+                    response = self.ban_Machine.receive_vote(voter_username, argument)
+                    # Envia resposta apenas para quem votou
+                    self.server_send_message(addr, f"{command}-{response}")
+                    continue  # Não executa o broadcast normal
+                    
                 elif (command == str(comandos.BAN)):
                     # inicia a votação para banir um usuário da sala
                     target = argument
-                    result_message = self.ban_Machine.request_ban(target)
-                    message = result_message
+                    response = self.ban_Machine.request_ban(target)
+                    # Envia resposta apenas para quem iniciou
+                    self.server_send_message(addr, f"{command}-{response}")
+                    continue  # Não executa o broadcast normal
                 elif (command == str(comandos.KILL)): 
                     print("kill command received") 
                     argument = self.find_client(addr) 
