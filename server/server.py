@@ -109,8 +109,7 @@ class Server:
 
                 print(f"recebeu: {command} e \"{argument}\" do endereço: {addr}")
                 if self.is_user_banned(addr):
-                    # Envia mensagem de acesso negado para o usuário banido
-                    ban_notification = "\033[31m[Server] ⚠️ Você foi banido do chat! Conexão será encerrada. ⚠️\033[0m"
+                    ban_notification = "\033[33m[Server] ⚠️ Você foi banido do chat! Sua conexão foi encerrada. ⚠️\033[0m"
                     self.server_send_message(addr, f"{8}-{ban_notification}")
                     print(f"Comando ignorado de usuário banido: {addr}")
                     continue  
@@ -177,7 +176,7 @@ class Server:
                 else: 
                     self.server_send_message(addr, command + "-" + message)
             except Exception as e:
-                print("Ocorreu um erro: " + str(e))
+                print("\033[33mOcorreu um erro: " + str(e) + "\033[0m")
 
     def _process_received_message(self):  
         message, addr = self.server_receive_message() 

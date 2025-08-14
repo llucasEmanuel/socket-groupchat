@@ -123,7 +123,7 @@ class Client:
                     self.client_send_message(portrcv, 
                                         str(comandos.MSG) + "-" + _input) 
             except:
-                print("Ocorreu um erro de conexão...")
+                print("\033[33mOcorreu um erro de conexão...\033[0m")
 
     def client_input(self):
         _input = input(self._inputprint())
