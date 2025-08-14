@@ -1,33 +1,8 @@
 import os
 from config.settings import SERVER_IP, SERVER_PORT
-<<<<<<< HEAD
-from utils.utils import receive_file, send_file, send_message, receive_message
-
-class Client:
-    def __init__(self):
-        self.friend_list = []
-
-    def get_client_list(self, sock):
-        # client_names_str terá o formato "<user1>\0<user2>\0<user3>"
-        client_names_str = receive_message(sock)
-        name_list = client_names_str.split('\0')
-        return name_list
-    
-    # O recomendado é chamar o get_client_list antes de chamar essa função
-    def print_client_list(self, name_list):
-        print("==== LISTA DE USUÁRIOS ====")
-
-        for i, username in enumerate(name_list):
-            print(f"{i+1} - {username}")
-
-class Client:
-    def __init__(self):
-        self,friend_list = []
-=======
 from utils.utils import receive_file, send_file, receive_message, send_message
 from utils.rdt_utils import kill, set_kill
 from utils.utils import comandos
->>>>>>> 928fbc915c3d0a1da935e552fd522bf667532ef5
 
 from datetime import datetime
 
@@ -71,6 +46,8 @@ class Client:
             elif (command == str(comandos.RMV)):
                 # remove um usuário da lista de amigos
                 message = argument + " removido da lista de amigos"
+            elif (command == str(comandos.VOTE)):
+                message = "voto para banir " + argument
             else: 
                 message = argument
             
@@ -118,11 +95,20 @@ class Client:
                     if(self.online):
                         self.client_send_message(portrcv, 
                                             str(comandos.BAN) + "-" + argument)
+                elif(command == "/vote"):
+                    if(self.online):
+                        if argument.lower() in ["yes", "no"]:
+                            self.client_send_message(portrcv,
+                                            str(comandos.VOTE) + "-" + argument)
+                        else:
+                            print("Porfavor use /vote yes ou /vote no")
+                    else:
+                        print("Is necessary to be online to vote in a ban pool")
                 elif(command == "/help"):
                     # lista os comandos disponíveis a depender do status do usuário
                     # TODO fazer um print pra cada linha
                     print(
-                        "comandos disponíveis: \n\t/ola <nome> \n\t\t(entra no chat) \n\t/tchau \n\t\t(sai do chat) \n\t/list \n\t\t(lista pessoas online no chat) \n\t/friends \n\t\t(lista amigos) \n\t/add <user> \n\t\t(adiciona amigo) \n\t/rmv <user> \n\t\t(remove amigo) \n\t/ban <user> \n\t\t(inicia votação para banir usuario) \n\t/kill \n\t\t(fecha aplicativo) \n\t/help"
+                        "comandos disponíveis: \n\t/ola <nome> \n\t\t(entra no chat) \n\t/tchau \n\t\t(sai do chat) \n\t/list \n\t\t(lista pessoas online no chat) \n\t/friends \n\t\t(lista amigos) \n\t/add <user> \n\t\t(adiciona amigo) \n\t/rmv <user> \n\t\t(remove amigo) \n\t/ban <user> \n\t\t(inicia votação para banir usuario) \n\t/vote <y|n> \n\t\t(vota para banir usuario) \n\t/kill \n\t\t(fecha aplicativo) \n\t/help"
                     )
                 elif(command == "/kill"):
                     set_kill(True) # encerra o aplicativo

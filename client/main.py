@@ -3,15 +3,8 @@ import threading
 from client.client import Client
 
 def main():
-<<<<<<< HEAD
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
-    # Mude para o nome do arquivo que quer enviar para o servidor (deve estar na pasta client/data/)
-    file_name = "ah_eh.jpg"
-=======
     sock_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock_recv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
->>>>>>> 928fbc915c3d0a1da935e552fd522bf667532ef5
 
     client = Client(sock_send, sock_recv)
     try:

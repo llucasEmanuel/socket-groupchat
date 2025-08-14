@@ -1,4 +1,5 @@
 import os
+from state_machine.banMachine import BanStateMachine
 from utils.utils import receive_file, send_file, receive_message, send_message
 
 from utils.utils import comandos
@@ -15,6 +16,8 @@ class Server:
         self.client_list = []
         self.ban_list = []
         self.sock = sock
+        self.active_Voting = False
+        self.ban_Machine = BanStateMachine(self)
         
     def add_client(self, username, addr):   
         output_message = ""
@@ -36,7 +39,9 @@ class Server:
 
         # adicionando novo cliente
         client = ClientRegister(username, addr)
-        self.client_list.append(client)  
+        self.client_list.append(client)
+        
+        self.ban_Machine.handle_client_connect()  
 
         is_for_all = True
         output_message = f"[Server] '{username}' foi adicionado ao chat."
@@ -49,7 +54,10 @@ class Server:
 
             if(username == client.username):
                 self.client_list.remove(client)
-
+                
+                if not ban_on:
+                    self.ban_Machine.handle_client_disconnect(username)
+                
                 if(not ban_on): 
                     is_for_all = True
                     output_message = f"[Server] '{username}' saiu do chat."
@@ -61,7 +69,6 @@ class Server:
         output_message = "\033[33m[Server] ⚠️ Ocorreu um erro, não foi possível remover o usuário. ⚠️\033[0m"
         # print(output_message)
         return is_for_all, output_message
-
     # Envia a lista de clientes para o cliente de endereço addr que usou /list
     def send_client_list(self):
         client_names = [client.username for client in self.client_list]
@@ -112,9 +119,15 @@ class Server:
                 elif (command == str(comandos.RMV)):
                     # remove um usuário da lista de amigos
                     message = argument + " removido da lista de amigos"
+                elif (command == str(comandos.VOTE)):
+                    # processa voto para banimento
+                    voter_username = self.find_client(addr)
+                    message = self.ban_Machine.receive_vote(voter_username, argument)
                 elif (command == str(comandos.BAN)):
                     # inicia a votação para banir um usuário da sala
-                    message = f"votação para o banimento de {argument} da sala"
+                    target = argument
+                    result_message = self.ban_Machine.request_ban(target)
+                    message = result_message
                 elif (command == str(comandos.KILL)): 
                     print("kill command received") 
                     argument = self.find_client(addr) 

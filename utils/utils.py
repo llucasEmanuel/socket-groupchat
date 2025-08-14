@@ -15,6 +15,7 @@ class comandos(Enum):
     KILL = 7 
     MSG = 8 
     IGN = 9
+    VOTE = 10
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
