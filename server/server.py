@@ -90,6 +90,16 @@ class Server:
         # print(int.from_bytes((message[:4]).encode('latin1'), 'big'))
         return message[4:], (ip, int.from_bytes((message[:4]).encode('latin1'), 'big')) 
 
+    def is_user_banned(self, addr):
+        """Verifica se um usuário está banido pelo endereço"""
+        username = self.find_client(addr)
+        if username == "idk":  # Se não conseguir encontrar o username, pode estar banido
+            # Verifica na lista de banidos também
+            for banned_client in self.ban_list:
+                if banned_client.addr == addr:
+                    return True
+        return False
+
     def _loop_sending_message(self):
         while True:
             try:
@@ -98,6 +108,12 @@ class Server:
                 command, argument, addr = self._process_received_message()
 
                 print(f"recebeu: {command} e \"{argument}\" do endereço: {addr}")
+                if self.is_user_banned(addr):
+                    # Envia mensagem de acesso negado para o usuário banido
+                    ban_notification = "\033[31m[Server] ⚠️ Você foi banido do chat! Conexão será encerrada. ⚠️\033[0m"
+                    self.server_send_message(addr, f"{8}-{ban_notification}")
+                    print(f"Comando ignorado de usuário banido: {addr}")
+                    continue  
                 if(argument == "destroy the mainframe"):
                     break 
                 elif (command == str(comandos.OLA)):

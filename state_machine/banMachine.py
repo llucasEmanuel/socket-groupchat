@@ -96,17 +96,17 @@ class BanStateMachine:
     
     def _execute_ban(self):
         """Executa o banimento do usuário"""
-        # Adiciona à lista de banidos
+        # PRIMEIRO: Notifica todos (incluindo o usuário a ser banido) sobre o banimento
+        ban_message = f"[Server] '{self.ban_target}' foi banido do chat."
+        self.server.broadcast_message(f"{8}-{ban_message}")
+        
+        # SEGUNDO: Adiciona à lista de banidos
         banned_client = next((client for client in self.server.client_list if client.username == self.ban_target), None)
         if banned_client:
             self.server.ban_list.append(banned_client)
         
-        # Remove da lista de clientes ativos
+        # TERCEIRO: Remove da lista de clientes ativos
         is_for_all, message = self.server.remove_client(self.ban_target, ban_on=True)
-        
-        # Notifica todos sobre o banimento
-        ban_message = f"[Server] '{self.ban_target}' foi banido do chat."
-        self.server.broadcast_message(f"{8}-{ban_message}")
         
         self._reset_voting()
     
