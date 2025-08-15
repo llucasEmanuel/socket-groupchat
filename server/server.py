@@ -124,10 +124,7 @@ class Server:
                     is_for_all, message = self.remove_client(argument) 
                 elif (command == str(comandos.LIST)):
                     # lista os usuários conectados na sala
-                    is_for_all, message = self.send_client_list()
-                elif (command == str(comandos.FRIENDS)): 
-                    # lista os amigos do usuário 
-                    message = "lista de amigos: amigo1, amigo2" 
+                    is_for_all, message = self.send_client_list() 
                 elif (command == str(comandos.ADD)): 
                     # adiciona um usuário à lista de amigos
                     message = argument + " adicionado à lista de amigos" 
@@ -149,7 +146,7 @@ class Server:
                     # Envia resposta apenas para quem iniciou
                     self.server_send_message(addr, f"{command}-{response}")
                     continue  # Não executa o broadcast normal
-                elif (command == str(comandos.KILL)): 
+                elif (command == str(comandos.KILL)):
                     print("kill command received") 
                     argument = self.find_client(addr) 
                     is_for_all, message = self.remove_client(argument) 

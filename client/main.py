@@ -10,7 +10,7 @@ def main():
     try:
         client.recv_start()
     except:
-        print("\033[33mErro iniciando conexão...\033[33m")
+        print("\033[33mErro iniciando conexão...\033[0m")
         exit(1)
 
     portrcv = ((client.sock_recv.getsockname()[1]).to_bytes(4, 'big')).decode('latin1')

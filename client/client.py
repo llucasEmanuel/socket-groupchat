@@ -6,13 +6,52 @@ from utils.utils import comandos
 
 from datetime import datetime
 
-# TODO add value to command encoding from comandos enum
 class Client:
     def __init__(self, sock_send, sock_recv):
         self.friend_list = []
         self.sock_send = sock_send
         self.sock_recv = sock_recv
         self.online = False
+        self.current_username = None  # Armazena o username atual
+        
+    def add_friend(self, username):
+        """Adiciona um amigo à lista local"""
+        if not username.strip():
+            print("Nome de usuário não pode estar vazio.")
+            return
+            
+        if username == self.current_username:
+            print("Você não pode adicionar a si mesmo como amigo.")
+            return
+            
+        if username in self.friend_list:
+            print(f"'{username}' já está na sua lista de amigos.")
+            return
+            
+        self.friend_list.append(username)
+        print(f"'{username}' foi adicionado à sua lista de amigos.")
+
+    def rmv_friend(self, username):
+        """Remove um amigo da lista local"""
+        if not username.strip():
+            print("Nome de usuário não pode estar vazio.")
+            return
+            
+        if username in self.friend_list:
+            self.friend_list.remove(username)
+            print(f"'{username}' foi removido da sua lista de amigos.")
+        else:
+            print(f"'{username}' não está na sua lista de amigos.")
+
+    def list_friends(self):
+        """Lista todos os amigos"""
+        if not self.friend_list:
+            print("Sua lista de amigos está vazia.")
+            return
+            
+        print("==== LISTA DE AMIGOS ====")
+        for i, friend in enumerate(self.friend_list, 1):
+            print(f"{i} - {friend}")
     
     def _inputprint(self):
         if(self.online):
@@ -28,36 +67,59 @@ class Client:
         while not kill():
             message, addr = self.client_receive_message()
 
-            split = message.split('-', 1) # melhorar isso
+            split = message.split('-', 1)
             command = split[0]
-            argument = "" if (len(split) <= 1) else split[1] 
+            argument = "" if (len(split) <= 1) else split[1]
 
             if command == str(comandos.MSG):
-                hora_data = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
-                message = f"{argument} <{hora_data}>"
+                timestamp = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+                
+                # Parsing da mensagem: IP/USERNAME: texto
+                sender_ip = None
+                sender_username = None
+                message_text = None
+
+                if "/" in argument and ":" in argument:
+                    try:
+                        # Divide em IP e resto
+                        sender_info, message_text = argument.split(":", 1)
+                        if "/" in sender_info:
+                            sender_ip, sender_username = sender_info.split("/", 1)
+                            sender_ip = sender_ip.strip()
+                            sender_username = sender_username.strip()
+                            message_text = message_text.strip()
+                        else:
+                            sender_username = sender_info.strip()
+                            message_text = message_text.strip()
+                    except ValueError:
+                        # Se não conseguir fazer parse, usa o formato original
+                        message_text = argument
+
+                # Verifica se é amigo e adiciona tag
+                if sender_username and sender_username in self.friend_list:
+                    display_name = f"[ amigo ] {sender_username}"
+                else:
+                    display_name = sender_username
+
+                # Monta a mensagem final
+                if sender_ip and display_name and message_text:
+                    message = f"{sender_ip}/{display_name}: {message_text} <{timestamp}>"
+                elif display_name and message_text:
+                    message = f"{display_name}: {message_text} <{timestamp}>"
+                else:
+                    message = f"{argument} <{timestamp}>"
+
             elif command == str(comandos.LIST):
-                message = self.print_client_list(argument) 
-            elif (command == str(comandos.FRIENDS)):
-                # lista os amigos do usuário 
-                message = "lista de amigos: amigo1, amigo2" 
-            elif (command == str(comandos.ADD)):
-                # adiciona um usuário à lista de amigos
-                message = argument + " adicionado à lista de amigos" 
-            elif (command == str(comandos.RMV)):
-                # remove um usuário da lista de amigos
-                message = argument + " removido da lista de amigos"
-            elif (command == str(comandos.VOTE)):
-                message = "voto para banir " + argument
-            else: 
+                message = self.print_client_list(argument)
+            else:
                 message = argument
             
-            print("\n"+message+"\n" + self._inputprint(),end="")
+            print("\n"+message+"\n" + self._inputprint(), end="")
             if message == "-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-":
                 break
 
     def thread_userinput(self, portrcv : str):
         while not kill():
-
             _input, command, argument = self.client_input()
             if _input == "":
                 continue
@@ -66,31 +128,37 @@ class Client:
                     set_kill(True) 
                     continue 
 
-                if  (command == "/ola"):
+                if (command == "/ola"):
                     if(not self.online):
                         self.client_send_message(portrcv,
                                             str(comandos.OLA) + "-" + argument)
+                        self.current_username = argument  # Armazena o username
                         self.online = True
                 elif(command == "/tchau"):
                     if(self.online):
                         self.client_send_message(portrcv,
                                             str(comandos.TCHAU) + "-" + argument)
+                        self.current_username = None  # Limpa o username
                         self.online = False
                 elif(command == "/list"):
                     if(self.online):
                         self.client_send_message(portrcv,
                                             str(comandos.LIST) + "-")
                 elif(command == "/friends"):
-                    # ser lista de amigos conectados (?)
-                    self.client_send_message(portrcv,
-                                        str(comandos.FRIENDS) + "-")
+                    # PROCESSAMENTO LOCAL - não envia para servidor
+                    self.list_friends()
                 elif(command == "/add"):
-                    if(self.online):
-                        self.client_send_message(portrcv,
-                                            str(comandos.ADD) + "-" + argument)
+                    # PROCESSAMENTO LOCAL - não envia para servidor
+                    if not argument:
+                        print("Uso: /add <username>")
+                    else:
+                        self.add_friend(argument)
                 elif(command == "/rmv"):
-                    self.client_send_message(portrcv, 
-                                        str(comandos.RMV) + "-" + argument)
+                    # PROCESSAMENTO LOCAL - não envia para servidor
+                    if not argument:
+                        print("Uso: /rmv <username>")
+                    else:
+                        self.rmv_friend(argument)
                 elif(command == "/ban"):
                     if(self.online):
                         self.client_send_message(portrcv, 
@@ -105,13 +173,11 @@ class Client:
                     else:
                         print("Você precisa estar conectado para votar.")
                 elif(command == "/help"):
-                    # lista os comandos disponíveis a depender do status do usuário
-                    # TODO fazer um print pra cada linha
                     print(
-                        "comandos disponíveis: \n\t/ola <nome> \n\t\t(entra no chat) \n\t/tchau \n\t\t(sai do chat) \n\t/list \n\t\t(lista pessoas online no chat) \n\t/friends \n\t\t(lista amigos) \n\t/add <user> \n\t\t(adiciona amigo) \n\t/rmv <user> \n\t\t(remove amigo) \n\t/ban <user> \n\t\t(inicia votação para banir usuario) \n\t/vote <y|n> \n\t\t(vota para banir usuario) \n\t/kill \n\t\t(fecha aplicativo) \n\t/help"
+                        "comandos disponíveis: \n\t/ola <nome> \n\t\t(entra no chat) \n\t/tchau \n\t\t(sai do chat) \n\t/list \n\t\t(lista pessoas online no chat) \n\t/friends \n\t\t(lista seus amigos) \n\t/add <user> \n\t\t(adiciona amigo) \n\t/rmv <user> \n\t\t(remove amigo) \n\t/ban <user> \n\t\t(inicia votação para banir usuario) \n\t/vote <y|n> \n\t\t(vota para banir usuario) \n\t/kill \n\t\t(fecha aplicativo) \n\t/help"
                     )
                 elif(command == "/kill"):
-                    set_kill(True) # encerra o aplicativo
+                    set_kill(True)
                     self.client_send_message(portrcv,
                                         str(comandos.KILL) + "-")
                     print("-=-=-=-=-\naplicativo encerrado\n-=-=-=-=-") 
@@ -119,11 +185,14 @@ class Client:
                     self.client_send_message(portrcv, 
                                         str(comandos.IGN) + "-")
                 else:
-                    print("enviando: " + _input)
-                    self.client_send_message(portrcv, 
-                                        str(comandos.MSG) + "-" + _input) 
-            except:
-                print("\033[33mOcorreu um erro de conexão...\033[0m")
+                    if self.online:
+                        print("enviando: " + _input)
+                        self.client_send_message(portrcv, 
+                                            str(comandos.MSG) + "-" + _input)
+                    else:
+                        print("Você precisa estar conectado para enviar mensagens.")
+            except Exception as e:
+                print(f"\033[33mOcorreu um erro de conexão: {e}\033[0m")
 
     def client_input(self):
         _input = input(self._inputprint())
@@ -139,7 +208,6 @@ class Client:
         return message, addr
 
     def client_send_message(self, portrcv : str, message : str):
-        # Sempre envia para o servidor
         send_message(self.sock_send, (SERVER_IP, SERVER_PORT), 
                      portrcv + message)
 
@@ -150,17 +218,20 @@ class Client:
 
     def client_send_file(self, file_name):
         file_path = os.path.join("client", "data", file_name)
-        # Sempre envia para o servidor
         send_file(self.sock_send, (SERVER_IP, SERVER_PORT), file_path)
 
     def print_client_list(self, client_names_str):
         name_list = client_names_str.split('\0')
 
-        if not name_list:
+        if not name_list or name_list == ['']:
             return "Nenhum usuário conectado."
 
         message = "==== LISTA DE USUÁRIOS ====\n"
         for i, username in enumerate(name_list):
-            message = message + f"{i+1} - {username}\n"
+            # Mostra se é amigo na lista também
+            if username in self.friend_list:
+                message += f"{i+1} - [ amigo ] {username}\n"
+            else:
+                message += f"{i+1} - {username}\n"
 
         return message
