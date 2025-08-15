@@ -2,13 +2,14 @@ import os
 from state_machine.banMachine import BanStateMachine
 from utils.utils import receive_file, send_file, receive_message, send_message
 
-from utils.utils import comandos
+from utils.utils import comandos, randcolor, clear
 
 class ClientRegister:
     def __init__(self, username, addr):
         self.username = username
         # tupla: (ip, porta)
         self.addr = addr
+        self.color = randcolor()
 
 class Server: 
     def __init__(self, sock):
@@ -71,7 +72,7 @@ class Server:
         return is_for_all, output_message
     # Envia a lista de clientes para o cliente de endereço addr que usou /list
     def send_client_list(self):
-        client_names = [client.username for client in self.client_list]
+        client_names = [client.color+client.username+clear for client in self.client_list]
 
         # Concatena os nomes dos clientes em uma string (usa \0 para separar cada username)
         all_names_string = "\0".join(client_names)
@@ -82,8 +83,8 @@ class Server:
     def find_client(self, addr):
         for client in self.client_list:
             if client.addr == addr:
-                return client.username
-        return "idk"
+                return client.username, client.color
+        return "idk", clear
 
     def server_receive_message(self):
         message, (ip, _) = receive_message(self.sock)
@@ -92,7 +93,7 @@ class Server:
 
     def is_user_banned(self, addr):
         """Verifica se um usuário está banido pelo endereço"""
-        username = self.find_client(addr)
+        username, _ = self.find_client(addr)
         if username == "idk":  # Se não conseguir encontrar o username, pode estar banido
             # Verifica na lista de banidos também
             for banned_client in self.ban_list:
@@ -120,7 +121,7 @@ class Server:
                     is_for_all, message = self.add_client(argument, addr)
                 elif (command == str(comandos.TCHAU)):
                     # tira o usuário na lista de conectados
-                    argument = self.find_client(addr) 
+                    argument, _ = self.find_client(addr) 
                     is_for_all, message = self.remove_client(argument) 
                 elif (command == str(comandos.LIST)):
                     # lista os usuários conectados na sala
@@ -133,7 +134,7 @@ class Server:
                     message = argument + " removido da lista de amigos"
                 elif (command == str(comandos.VOTE)):
                     # processa voto para banimento
-                    voter_username = self.find_client(addr)
+                    voter_username, _ = self.find_client(addr)
                     response = self.ban_Machine.receive_vote(voter_username, argument)
                     # Envia resposta apenas para quem votou
                     self.server_send_message(addr, f"{command}-{response}")
@@ -148,7 +149,7 @@ class Server:
                     continue  # Não executa o broadcast normal
                 elif (command == str(comandos.KILL)):
                     print("kill command received") 
-                    argument = self.find_client(addr) 
+                    argument, _ = self.find_client(addr) 
                     is_for_all, message = self.remove_client(argument) 
                     is_for_all = True 
                     # message = "aplicativo encerrado"
@@ -156,8 +157,8 @@ class Server:
                 elif (command == str(comandos.MSG)):
                     # print("message received")
                     is_for_all = True
-                    user = self.find_client(addr) 
-                    message = f"{addr}/{user}: {argument}" 
+                    user, color = self.find_client(addr) 
+                    message = f"{addr}/{color}{user}{clear}: {argument}" 
                     # envia mensagem para todos os usuários na sala
                 elif (command == str(comandos.IGN)):
                     print("ignored")

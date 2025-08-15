@@ -3,6 +3,7 @@ from config.settings import BUFFER_SIZE, HEADER_SIZE
 from state_machine.rdt3_receiver import RDT3Receiver
 from state_machine.rdt3_sender import RDT3Sender
 from enum import Enum
+from random import randint
 
 class comandos(Enum):
     OLA = 0
@@ -16,6 +17,15 @@ class comandos(Enum):
     MSG = 8 
     IGN = 9
     VOTE = 10
+
+clear = "\033[0m"
+opcoes = [
+    "\033[34m", # BLUE
+    "\033[35m", # PURPLE
+    "\033[36m", # CYAN
+]
+def randcolor():
+    return opcoes[randint(0, 2)]
 
 DATA_SIZE = BUFFER_SIZE - HEADER_SIZE
 
