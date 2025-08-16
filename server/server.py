@@ -83,7 +83,7 @@ class Server:
         for client in self.client_list:
             if client.addr == addr:
                 return client.username
-        return "idk"
+        return "__idk__"
 
     def server_receive_message(self):
         message, (ip, _) = receive_message(self.sock)
@@ -93,7 +93,7 @@ class Server:
     def is_user_banned(self, addr):
         """Verifica se um usuário está banido pelo endereço"""
         username = self.find_client(addr)
-        if username == "idk":  # Se não conseguir encontrar o username, pode estar banido
+        if username == "__idk__":  # Se não conseguir encontrar o username, pode estar banido
             # Verifica na lista de banidos também
             for banned_client in self.ban_list:
                 if banned_client.addr == addr:
@@ -149,7 +149,7 @@ class Server:
                 elif (command == str(comandos.KILL)):
                     print("kill command received") 
                     argument = self.find_client(addr) 
-                    if argument != "idk":
+                    if argument != "__idk__":
                         is_for_all, message = self.remove_client(argument) 
                         is_for_all = True 
                     # message = "aplicativo encerrado"
@@ -169,10 +169,11 @@ class Server:
                 # se for um comando, adiciona esses símbolos para diferenciar de uma mensagem normal
 
                 print(f"enviando: {command} {message}") 
-                if is_for_all: 
-                    self.broadcast_message(command + "-" + message)
-                else: 
-                    self.server_send_message(addr, command + "-" + message)
+                if self.find_client(addr) != "__idk__":
+                    if is_for_all: 
+                        self.broadcast_message(command + "-" + message)
+                    else: 
+                        self.server_send_message(addr, command + "-" + message)
             except Exception as e:
                 print("\033[33mOcorreu um erro: " + str(e) + "\033[0m")
 
