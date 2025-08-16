@@ -74,7 +74,7 @@ After running the client script, the terminal will wait for a command to connect
 
 You can also use various functionalities in the group chat, which are listed in the following table:
 
-| Command | Explanation |
+| **Command** | **Explanation** |
 |:--------:|:------:|
 | `/ola <username>`    |  Enters the chat     |
 | `/tchau`        | Exits the chat      |
