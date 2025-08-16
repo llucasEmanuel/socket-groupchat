@@ -149,8 +149,9 @@ class Server:
                 elif (command == str(comandos.KILL)):
                     print("kill command received") 
                     argument = self.find_client(addr) 
-                    is_for_all, message = self.remove_client(argument) 
-                    is_for_all = True 
+                    if argument != "idk":
+                        is_for_all, message = self.remove_client(argument) 
+                        is_for_all = True 
                     # message = "aplicativo encerrado"
                     # usuario desconecta do servidor
                 elif (command == str(comandos.MSG)):

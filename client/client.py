@@ -72,10 +72,10 @@ class Client:
             argument = "" if (len(split) <= 1) else split[1]
 
             if command == str(comandos.MSG):
-                timestamp = datetime.now().strftime("%H:%M:%S %d/%m/%Y")
+                timestamp = datetime.now().strftime("%H:%M:%S-%d/%m/%Y")
                 
                 # Parsing da mensagem: IP/USERNAME: texto
-                sender_ip = None
+                sender_addr = None
                 sender_username = None
                 message_text = None
 
@@ -84,8 +84,11 @@ class Client:
                         # Divide em IP e resto
                         sender_info, message_text = argument.split(":", 1)
                         if "/" in sender_info:
-                            sender_ip, sender_username = sender_info.split("/", 1)
-                            sender_ip = sender_ip.strip()
+                            sender_addr, sender_username = sender_info.split("/", 1)
+  
+                            sender_addr = sender_addr.strip("()")
+                            ip, port = sender_addr.split(",")
+                            port = port.strip()
                             sender_username = sender_username.strip()
                             message_text = message_text.strip()
                         else:
@@ -102,12 +105,12 @@ class Client:
                     display_name = sender_username
 
                 # Monta a mensagem final
-                if sender_ip and display_name and message_text:
-                    message = f"{sender_ip}/{display_name}: {message_text} <{timestamp}>"
+                if ip and port and display_name and message_text:
+                    message = f"{ip[1:-1]}:{port}/~{display_name}: {message_text} {timestamp}"
                 elif display_name and message_text:
-                    message = f"{display_name}: {message_text} <{timestamp}>"
+                    message = f"{display_name}: {message_text} {timestamp}"
                 else:
-                    message = f"{argument} <{timestamp}>"
+                    message = f"{argument} {timestamp}"
 
             elif command == str(comandos.LIST):
                 message = self.print_client_list(argument)
