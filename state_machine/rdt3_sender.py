@@ -47,7 +47,7 @@ class RDT3Sender:
         target_states = self.__transitions[self.__state]
 
         if new_state in target_states:
-            print(f"({self.__state}) ---> ({new_state})")
+            # print(f"({self.__state}) ---> ({new_state})")
             self.__state = new_state
         else:
             raise KeyError(f"Transição inválida do estado '{self.__state}' para o estado '{new_state}'")
@@ -79,7 +79,7 @@ class RDT3Sender:
                 # Se houver timeout, reenvia pacote
                 except TimeoutError:
                     send_with_loss_sim(sock, ZERO_1 + data, addr)
-                    print("Ocorreu timeout, pacote reenviado")
+                    # print("Ocorreu timeout, pacote reenviado")
             # Estado de envio do arquivo 1
             elif self.__state == WAIT_APL_1: 
                 # Envia segmento e vai para estado de espera
@@ -102,4 +102,4 @@ class RDT3Sender:
                 # Se houver timeout, reenvia pacote
                 except TimeoutError:
                     send_with_loss_sim(sock, ONE_1 + data, addr)
-                    print("Ocorreu timeout, pacote reenviado")
+                    # print("Ocorreu timeout, pacote reenviado")

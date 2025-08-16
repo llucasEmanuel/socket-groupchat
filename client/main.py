@@ -1,19 +1,35 @@
 import socket
-from client.client import client_receive_file, client_send_file
+import threading
+from client.client import Client
 
 def main():
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock_send = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock_recv = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    # Mude para o nome do arquivo que quer enviar para o servidor (deve estar na pasta client/data/)
-    file_name = "ah_eh.jpg"
+    client = Client(sock_send, sock_recv)
+    try:
+        client.recv_start()
+    except:
+        print("\033[33mErro iniciando conexão...\033[0m")
+        exit(1)
 
-    # Envia o arquivo para o servidor a partir do socket UDP
-    client_send_file(sock, file_name)
+    portrcv = ((client.sock_recv.getsockname()[1]).to_bytes(4, 'big')).decode('latin1')
 
-    # Recebe de volta o arquivo do servidor com o nome modificado e armazena em client/data
-    client_receive_file(sock)
+    thread_entrada = threading.Thread(target=client.thread_userinput, args=[portrcv])
+    thread_receiver = threading.Thread(target=client.thread_receive)
+    thread_entrada.daemon = True
+    thread_receiver.daemon = True
 
-    sock.close()
+    # Start each thread
+    thread_entrada.start()
+    thread_receiver.start()
+
+    # Wait for all threads to finish
+    thread_entrada.join()
+    thread_receiver.join()
+
+    sock_send.close()
+    sock_recv.close()
 
 if __name__ == "__main__":
     main()

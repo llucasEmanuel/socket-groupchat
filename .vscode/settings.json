@@ -1,0 +1,7 @@
+{
+ "python.analysis.extraPaths": [
+  "./state_machine",
+  "./utils",
+  "./config"
+ ]
+}
